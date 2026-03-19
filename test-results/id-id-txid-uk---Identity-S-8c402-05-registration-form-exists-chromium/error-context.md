@@ -1,0 +1,150 @@
+# Page snapshot
+
+```yaml
+- generic [active] [ref=e1]:
+  - navigation [ref=e2]:
+    - generic [ref=e3]: ₿
+    - generic [ref=e4]: "|"
+    - link "txid" [ref=e5] [cursor=pointer]:
+      - /url: https://txid.uk
+    - generic [ref=e6]: ·
+    - link "tools" [ref=e7] [cursor=pointer]:
+      - /url: https://tools.txid.uk
+    - generic [ref=e8]: ·
+    - link "map" [ref=e9] [cursor=pointer]:
+      - /url: https://map.txid.uk
+    - generic [ref=e10]: ·
+    - link "portfolio" [ref=e11] [cursor=pointer]:
+      - /url: https://portfolio.txid.uk
+    - generic [ref=e12]: ·
+    - link "tx" [ref=e13] [cursor=pointer]:
+      - /url: https://tx.txid.uk
+    - generic [ref=e14]: ·
+    - link "id" [ref=e15] [cursor=pointer]:
+      - /url: https://id.txid.uk
+    - generic [ref=e16]: ·
+    - link "learn" [ref=e17] [cursor=pointer]:
+      - /url: https://learn.txid.uk
+    - generic [ref=e18]: ·
+    - link "sim" [ref=e19] [cursor=pointer]:
+      - /url: https://sim.txid.uk
+    - generic [ref=e20]: ·
+    - link "macro" [ref=e21] [cursor=pointer]:
+      - /url: https://macro.txid.uk
+    - generic [ref=e22]: ·
+    - link "apps" [ref=e23] [cursor=pointer]:
+      - /url: https://apps.txid.uk
+  - link "Skip to content" [ref=e24] [cursor=pointer]:
+    - /url: "#main"
+  - banner [ref=e25]:
+    - generic [ref=e26]:
+      - link "txid.uk" [ref=e27] [cursor=pointer]:
+        - /url: https://txid.uk
+        - img [ref=e28]
+        - text: txid.uk
+      - text: / ID
+      - generic [ref=e33]:
+        - link "채굴" [ref=e34] [cursor=pointer]:
+          - /url: https://txid.uk/#/mining
+        - link "공부방" [ref=e35] [cursor=pointer]:
+          - /url: https://learn.txid.uk
+      - generic [ref=e36]:
+        - generic [ref=e37]:
+          - button "언어 선택" [ref=e38]: KO
+          - menu "언어 선택" [ref=e39]:
+            - button "한국어" [ref=e40]
+            - button "English" [ref=e41]
+            - button "日本語" [ref=e42]
+        - button "테마 전환" [ref=e43]:
+          - img [ref=e44]
+        - generic [ref=e50]:
+          - button "메뉴" [ref=e51]:
+            - img [ref=e52]
+          - generic [ref=e53]:
+            - generic [ref=e54]:
+              - generic [ref=e55]: 언어
+              - generic [ref=e56]:
+                - button "KO" [ref=e57]
+                - button "EN" [ref=e58]
+                - button "JA" [ref=e59]
+            - button "테마 전환" [ref=e61]: 테마 전환
+  - main [ref=e62]:
+    - generic [ref=e63]:
+      - heading "Nostr ID 인증" [level=1] [ref=e64]
+      - paragraph [ref=e65]: username@txid.uk — NIP-05 인증으로 Nostr에서 신뢰할 수 있는 아이덴티티를 확보하세요
+    - generic [ref=e66]:
+      - text: ⚡
+      - generic [ref=e67]:
+        - strong
+        - text: 명이 인증 완료
+    - generic [ref=e68]:
+      - generic [ref=e69]:
+        - generic [ref=e70]: 프리미엄 유저네임 가격표
+        - generic [ref=e71]: 🔥 기간한정 할인 중!
+        - generic [ref=e72]:
+          - generic [ref=e73]:
+            - generic [ref=e74]: 1 char
+            - generic [ref=e75]: "예: a"
+            - generic [ref=e76]: 50,000
+            - generic [ref=e77]: 40,000
+            - generic [ref=e78]: sats/year
+          - generic [ref=e79]:
+            - generic [ref=e80]: 2 chars
+            - generic [ref=e81]: "예: ab"
+            - generic [ref=e82]: 40,000
+            - generic [ref=e83]: 30,000
+            - generic [ref=e84]: sats/year
+          - generic [ref=e85]:
+            - generic [ref=e86]: 3 chars
+            - generic [ref=e87]: "예: abc"
+            - generic [ref=e88]: 30,000
+            - generic [ref=e89]: 20,000
+            - generic [ref=e90]: sats/year
+          - generic [ref=e91]:
+            - generic [ref=e92]: 4 chars
+            - generic [ref=e93]: "예: alex"
+            - generic [ref=e94]: 20,000
+            - generic [ref=e95]: 10,000
+            - generic [ref=e96]: sats/year
+          - generic [ref=e97]:
+            - generic [ref=e98]: 5+ chars
+            - generic [ref=e99]: "예: alice"
+            - generic [ref=e100]: 10,000
+            - generic [ref=e101]: 5,000
+            - generic [ref=e102]: sats/year
+      - generic [ref=e103]:
+        - generic [ref=e104]: 왜 NIP-05가 필요한가요?
+        - generic [ref=e105]:
+          - generic [ref=e106]:
+            - generic [ref=e107]: ✓
+            - generic [ref=e108]: 인증된 아이덴티티
+            - generic [ref=e109]: Nostr 클라이언트에서 인증 체크마크가 표시됩니다
+          - generic [ref=e110]:
+            - generic [ref=e111]: "@"
+            - generic [ref=e112]: 하나의 주소
+            - generic [ref=e113]: 긴 공개키 대신 username@txid.uk로 찾을 수 있습니다
+          - generic [ref=e114]:
+            - generic [ref=e115]: ⇄
+            - generic [ref=e116]: 크로스 클라이언트
+            - generic [ref=e117]: Damus, Primal, Amethyst 등 모든 Nostr 클라이언트에서 작동합니다
+      - button "Lightning 로그인으로 바로 구매하세요" [ref=e118] [cursor=pointer]:
+        - paragraph [ref=e119]: Lightning 로그인으로 바로 구매하세요
+  - contentinfo [ref=e120]:
+    - generic [ref=e121]:
+      - generic [ref=e122]:
+        - text: © 2025
+        - link "txid.uk" [ref=e123] [cursor=pointer]:
+          - /url: https://txid.uk
+        - text: — Bitcoin Explorer
+      - generic [ref=e124]:
+        - text: mempool.space API 사용 ·
+        - link "X" [ref=e125] [cursor=pointer]:
+          - /url: https://x.com/bc1qwerty
+          - text: 𝕏
+        - text: ·
+        - link "Bluesky" [ref=e126] [cursor=pointer]:
+          - /url: https://bsky.app/profile/txid.uk
+        - text: ·
+        - link "Nostr" [ref=e127] [cursor=pointer]:
+          - /url: https://njump.me/npub16qucsfagff58mkac3ynwqyy9rkhw6wgnjk6xre2eagfqxkudqngs4gfc2d
+```

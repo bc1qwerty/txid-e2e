@@ -1,0 +1,371 @@
+# Page snapshot
+
+```yaml
+- generic [active] [ref=e1]:
+  - navigation [ref=e2]:
+    - generic [ref=e3]: ₿
+    - generic [ref=e4]: "|"
+    - link "txid" [ref=e5] [cursor=pointer]:
+      - /url: https://txid.uk
+    - generic [ref=e6]: ·
+    - link "tools" [ref=e7] [cursor=pointer]:
+      - /url: https://tools.txid.uk
+    - generic [ref=e8]: ·
+    - link "map" [ref=e9] [cursor=pointer]:
+      - /url: https://map.txid.uk
+    - generic [ref=e10]: ·
+    - link "portfolio" [ref=e11] [cursor=pointer]:
+      - /url: https://portfolio.txid.uk
+    - generic [ref=e12]: ·
+    - link "tx" [ref=e13] [cursor=pointer]:
+      - /url: https://tx.txid.uk
+    - generic [ref=e14]: ·
+    - link "id" [ref=e15] [cursor=pointer]:
+      - /url: https://id.txid.uk
+    - generic [ref=e16]: ·
+    - link "learn" [ref=e17] [cursor=pointer]:
+      - /url: https://learn.txid.uk
+    - generic [ref=e18]: ·
+    - link "sim" [ref=e19] [cursor=pointer]:
+      - /url: https://sim.txid.uk
+    - generic [ref=e20]: ·
+    - link "macro" [ref=e21] [cursor=pointer]:
+      - /url: https://macro.txid.uk
+    - generic [ref=e22]: ·
+    - link "apps" [ref=e23] [cursor=pointer]:
+      - /url: https://apps.txid.uk
+  - link "본문으로 건너뛰기" [ref=e24] [cursor=pointer]:
+    - /url: "#app"
+  - banner [ref=e25]:
+    - generic [ref=e26]:
+      - link "txid.uk" [ref=e27] [cursor=pointer]:
+        - /url: "#/"
+        - img [ref=e28]
+        - text: txid.uk
+      - generic [ref=e33]:
+        - link "채굴" [ref=e34] [cursor=pointer]:
+          - /url: "#/mining"
+        - link "공부방" [ref=e35] [cursor=pointer]:
+          - /url: https://learn.txid.uk/ko/
+      - generic [ref=e36]:
+        - button "도구" [ref=e38] [cursor=pointer]:
+          - img [ref=e39]
+        - button "로그인" [ref=e43] [cursor=pointer]:
+          - img [ref=e44]
+          - generic [ref=e46]: 로그인
+        - button "언어 선택" [ref=e48] [cursor=pointer]: KO
+        - button "테마 전환" [ref=e49] [cursor=pointer]:
+          - img [ref=e50]
+    - generic [ref=e53]:
+      - generic [ref=e54]: 검색
+      - textbox "검색" [ref=e55]:
+        - /placeholder: TXID / 블록 높이 / 주소 검색...
+      - generic [ref=e56]:
+        - generic [ref=e57]: TXID 64자리
+        - generic [ref=e58]: ·
+        - generic [ref=e59]: 블록 높이
+        - generic [ref=e60]: ·
+        - generic [ref=e61]: 비트코인 주소
+      - button "검색 실행" [ref=e62] [cursor=pointer]:
+        - img [ref=e63]
+  - generic [ref=e67]:
+    - generic [ref=e68]:
+      - heading "Bitcoin Explorer & Learning Platform" [level=1] [ref=e69]
+      - generic [ref=e70]:
+        - link "Learn" [ref=e71] [cursor=pointer]:
+          - /url: https://learn.txid.uk/ko/
+          - img [ref=e72]
+          - generic [ref=e75]: Learn
+        - link "Tools" [ref=e76] [cursor=pointer]:
+          - /url: https://tools.txid.uk
+          - img [ref=e77]
+          - generic [ref=e79]: Tools
+        - link "Explorer" [ref=e80] [cursor=pointer]:
+          - /url: "#/"
+          - img [ref=e81]
+          - generic [ref=e84]: Explorer
+    - generic [ref=e85]:
+      - generic "현재 확인된 최신 블록 높이" [ref=e86]:
+        - generic [ref=e87]: 941,297
+        - generic [ref=e88]: 블록 높이
+      - generic "현재 멤풀 대기 중인 미확인 트랜잭션 수" [ref=e89]:
+        - generic [ref=e90]: 24,485
+        - generic [ref=e91]: 미확인 TX
+      - generic "멤풀 전체 크기" [ref=e92]:
+        - generic [ref=e93]: 23.7 MB
+        - generic [ref=e94]: 멤풀 크기
+      - generic "현재 권장 빠른 수수료 (sat/vB)" [ref=e95]:
+        - generic [ref=e96]: 1 sat/vB
+        - generic [ref=e97]: 빠른 수수료
+      - generic "CoinGecko 기준 BTC 달러 가격" [ref=e98]:
+        - generic [ref=e99]: $69,657
+        - generic [ref=e100]: BTC/USD
+      - generic "비트코인 시장 도미넌스" [ref=e101]:
+        - generic [ref=e102]: 56.2%
+        - generic [ref=e103]: BTC 도미
+      - generic "초당 트랜잭션 처리량 (추정)" [ref=e104]:
+        - generic [ref=e105]: 12.4 tx/s
+        - generic [ref=e106]: TPS
+      - generic "다음 반감기까지 남은 블록 수" [ref=e107]:
+        - generic [ref=e108]: 108,703 blk
+        - generic [ref=e109]: ~755일
+        - generic [ref=e110]: 반감기
+  - generic [ref=e111]:
+    - generic [ref=e112]:
+      - generic [ref=e114]:
+        - img [ref=e115]
+        - generic [ref=e118]: 더 알아보기
+        - link "멤풀이란 무엇인가" [ref=e119] [cursor=pointer]:
+          - /url: https://learn.txid.uk/ko/blog/what-is-mempool/
+        - link "수수료 가이드" [ref=e120] [cursor=pointer]:
+          - /url: https://learn.txid.uk/ko/blog/bitcoin-fee-guide/
+      - generic [ref=e121]:
+        - img "Bitcoin mempool visualization showing pending transactions" [ref=e122]
+        - generic [ref=e123]:
+          - generic [ref=e126]: 100+ sat/vB
+          - generic [ref=e129]: 20~100
+          - generic [ref=e132]: 5~20
+          - generic [ref=e135]: 2~5
+          - generic [ref=e138]: 1~2
+          - generic [ref=e141]: 0.5~1
+          - generic [ref=e144]: <0.5
+        - generic [ref=e145]: 블록을 클릭해 상세 정보를 확인하세요
+      - main [ref=e146]:
+        - generic [ref=e147]:
+          - generic [ref=e149]: 블록체인 상태
+          - generic [ref=e150]:
+            - generic [ref=e151]:
+              - generic [ref=e152]: 난이도 조정
+              - generic [ref=e153]: 175 블록 (~1일 5시간) -734.52% 예상
+            - generic [ref=e154]:
+              - generic [ref=e155]: 수수료별 예상 대기
+              - generic [ref=e156]:
+                - text: 1 sat/vB → ~10분
+                - text: 1 sat/vB → ~30분
+                - text: 1 sat/vB → ~80분
+        - generic [ref=e157]:
+          - generic [ref=e158]: 최근 블록
+          - generic [ref=e159]:
+            - generic "000000000000000000012949d54d7138da480e8a0e4e2394b379657884deae42" [ref=e160] [cursor=pointer]:
+              - generic [ref=e161]:
+                - generic [ref=e162]: "#941,297"
+                - generic "3/19/2026, 9:46:59 PM" [ref=e163]: 2분 전
+              - generic [ref=e164]:
+                - generic [ref=e165]: TX
+                - generic [ref=e166]: 4,164
+              - generic [ref=e167]:
+                - generic [ref=e168]: 크기
+                - generic [ref=e169]: 1.68 MB
+              - generic [ref=e170]:
+                - generic [ref=e171]: 수수료
+                - generic [ref=e172]: 0.01464698 BTC
+              - generic [ref=e173]: 0~122 sat/vB
+              - generic [ref=e175]: ▶ SpiderPool
+            - generic "0000000000000000000187e12f9b81f2b0104a951ecd61f7f108bfd234a4df28" [ref=e176] [cursor=pointer]:
+              - generic [ref=e177]:
+                - generic [ref=e178]: "#941,296"
+                - generic "3/19/2026, 9:39:39 PM" [ref=e179]: 9분 전
+              - generic [ref=e180]:
+                - generic [ref=e181]: TX
+                - generic [ref=e182]: 2,918
+              - generic [ref=e183]:
+                - generic [ref=e184]: 크기
+                - generic [ref=e185]: 1.69 MB
+              - generic [ref=e186]:
+                - generic [ref=e187]: 수수료
+                - generic [ref=e188]: 0.02452432 BTC
+              - generic [ref=e189]: 1~555 sat/vB
+              - generic [ref=e191]: ▶ Foundry USA
+            - generic "00000000000000000000c045d49b0663933e5318694cbb55fa9d2380b20f0fa5" [ref=e192] [cursor=pointer]:
+              - generic [ref=e193]:
+                - generic [ref=e194]: "#941,295"
+                - generic "3/19/2026, 9:27:31 PM" [ref=e195]: 21분 전
+              - generic [ref=e196]:
+                - generic [ref=e197]: TX
+                - generic [ref=e198]: 3,636
+              - generic [ref=e199]:
+                - generic [ref=e200]: 크기
+                - generic [ref=e201]: 1.65 MB
+              - generic [ref=e202]:
+                - generic [ref=e203]: 수수료
+                - generic [ref=e204]: 0.03408173 BTC
+              - generic [ref=e205]: 1~200 sat/vB
+              - generic [ref=e207]: ▶ ViaBTC
+            - generic "000000000000000000013fd55cb61fb80343e5186c93b3ea83ceb722fac164a1" [ref=e208] [cursor=pointer]:
+              - generic [ref=e209]:
+                - generic [ref=e210]: "#941,294"
+                - generic "3/19/2026, 9:02:41 PM" [ref=e211]: 46분 전
+              - generic [ref=e212]:
+                - generic [ref=e213]: TX
+                - generic [ref=e214]: 4,762
+              - generic [ref=e215]:
+                - generic [ref=e216]: 크기
+                - generic [ref=e217]: 1.68 MB
+              - generic [ref=e218]:
+                - generic [ref=e219]: 수수료
+                - generic [ref=e220]: 0.01218899 BTC
+              - generic [ref=e221]: 0~101 sat/vB
+              - generic [ref=e223]: ▶ Luxor
+            - generic "00000000000000000001c9df7f2ffcdf237c61af39be86675ba3ee289ef95b71" [ref=e224] [cursor=pointer]:
+              - generic [ref=e225]:
+                - generic [ref=e226]: "#941,293"
+                - generic "3/19/2026, 8:57:38 PM" [ref=e227]: 51분 전
+              - generic [ref=e228]:
+                - generic [ref=e229]: TX
+                - generic [ref=e230]: 1,982
+              - generic [ref=e231]:
+                - generic [ref=e232]: 크기
+                - generic [ref=e233]: 785.0 KB
+              - generic [ref=e234]:
+                - generic [ref=e235]: 수수료
+                - generic [ref=e236]: 0.01217693 BTC
+              - generic [ref=e237]: 0~114 sat/vB
+              - generic [ref=e239]: ▶ F2Pool
+            - generic "0000000000000000000002ad234b3cc11497c479dd153fc9f1ffc515e0448e59" [ref=e240] [cursor=pointer]:
+              - generic [ref=e241]:
+                - generic [ref=e242]: "#941,292"
+                - generic "3/19/2026, 8:48:10 PM" [ref=e243]: 1시간 전
+              - generic [ref=e244]:
+                - generic [ref=e245]: TX
+                - generic [ref=e246]: 4,263
+              - generic [ref=e247]:
+                - generic [ref=e248]: 크기
+                - generic [ref=e249]: 1.76 MB
+              - generic [ref=e250]:
+                - generic [ref=e251]: 수수료
+                - generic [ref=e252]: 0.00647964 BTC
+              - generic [ref=e253]: 0~60 sat/vB
+              - generic [ref=e255]: ▶ Foundry USA
+            - generic "0000000000000000000107c4bb746b16eaf1b7cde2827574de83b84d5823dfa0" [ref=e256] [cursor=pointer]:
+              - generic [ref=e257]:
+                - generic [ref=e258]: "#941,291"
+                - generic "3/19/2026, 8:44:23 PM" [ref=e259]: 1시간 전
+              - generic [ref=e260]:
+                - generic [ref=e261]: TX
+                - generic [ref=e262]: 4,721
+              - generic [ref=e263]:
+                - generic [ref=e264]: 크기
+                - generic [ref=e265]: 1.80 MB
+              - generic [ref=e266]:
+                - generic [ref=e267]: 수수료
+                - generic [ref=e268]: 0.00216599 BTC
+              - generic [ref=e269]: 0~34 sat/vB
+              - generic [ref=e271]: ▶ Foundry USA
+            - generic "0000000000000000000062d0f034bf9ecb3266cc592c09fe42610b6e50ccb3db" [ref=e272] [cursor=pointer]:
+              - generic [ref=e273]:
+                - generic [ref=e274]: "#941,290"
+                - generic "3/19/2026, 8:43:40 PM" [ref=e275]: 1시간 전
+              - generic [ref=e276]:
+                - generic [ref=e277]: TX
+                - generic [ref=e278]: 1,425
+              - generic [ref=e279]:
+                - generic [ref=e280]: 크기
+                - generic [ref=e281]: 570.5 KB
+              - generic [ref=e282]:
+                - generic [ref=e283]: 수수료
+                - generic [ref=e284]: 0.01013042 BTC
+              - generic [ref=e285]: 0~120 sat/vB
+              - generic [ref=e287]: ▶ F2Pool
+        - generic [ref=e289]:
+          - generic [ref=e290]:
+            - heading "BTC 가격 (30일)" [level=3] [ref=e291]:
+              - img [ref=e292]
+              - text: BTC 가격 (30일)
+            - generic [ref=e294]: $69,935-0.40% (24h)
+          - heading "멤풀 크기 추이" [level=3] [ref=e298]:
+            - img [ref=e299]
+            - text: 멤풀 크기 추이
+    - complementary [ref=e303]:
+      - generic [ref=e304]:
+        - generic [ref=e307]: Live TX
+        - generic [ref=e308]:
+          - generic [ref=e310]: 3,414 TX
+          - generic [ref=e311]: 31 sat/vB
+        - generic [ref=e312]:
+          - generic [ref=e313]:
+            - img [ref=e314]
+            - generic [ref=e319]: 7d107a98d7…
+            - generic [ref=e320]: 0.0141 BTC
+          - generic [ref=e321]:
+            - img [ref=e322]
+            - generic [ref=e327]: 42635f5230…
+            - generic [ref=e328]: 0.0146 BTC
+          - generic [ref=e329]:
+            - img [ref=e330]
+            - generic [ref=e335]: b04b477a2c…
+            - generic [ref=e336]: 0.0012 BTC
+      - generic [ref=e337]:
+        - generic [ref=e338]:
+          - img [ref=e339]
+          - generic [ref=e342]: Today's Term
+        - generic [ref=e343]:
+          - generic [ref=e344]: 해시레이트
+          - generic [ref=e345]: 채굴 네트워크의 총 연산력. 초당 해시 수(H/s)로 측정. 해시레이트가 높을수록 네트워크가 안전.
+          - link "더 알아보기 →" [ref=e346] [cursor=pointer]:
+            - /url: https://learn.txid.uk/ko/glossary/#hashrate
+      - generic [ref=e347]:
+        - generic [ref=e348]:
+          - img [ref=e349]
+          - generic [ref=e352]: Recent Articles
+        - generic [ref=e353]:
+          - link "비트코인 지갑 주소란 무엇인가 3월 13일" [ref=e354] [cursor=pointer]:
+            - /url: https://learn.txid.uk/ko/blog/bitcoin-wallet-address/
+            - generic [ref=e355]: 비트코인 지갑 주소란 무엇인가
+            - generic [ref=e356]: 3월 13일
+          - link "UTXO 모델 이해하기 3월 12일" [ref=e357] [cursor=pointer]:
+            - /url: https://learn.txid.uk/ko/blog/utxo-model/
+            - generic [ref=e358]: UTXO 모델 이해하기
+            - generic [ref=e359]: 3월 12일
+          - link "수수료 계산 실전 가이드 3월 11일" [ref=e360] [cursor=pointer]:
+            - /url: https://learn.txid.uk/ko/blog/bitcoin-fee-guide/
+            - generic [ref=e361]: 수수료 계산 실전 가이드
+            - generic [ref=e362]: 3월 11일
+  - contentinfo [ref=e363]:
+    - generic [ref=e364]:
+      - generic [ref=e365]: 비트코인, 오스트리아 경제학, 그리고 자유.
+      - generic [ref=e366]:
+        - generic [ref=e367]: 블록
+        - generic [ref=e368]: "#941,297"
+        - text: ·
+        - generic [ref=e369]: 멤풀
+        - generic [ref=e370]: 24,485 TX
+      - generic [ref=e371]:
+        - link "공부방" [ref=e372] [cursor=pointer]:
+          - /url: https://learn.txid.uk/ko/
+          - img [ref=e373]
+          - text: 공부방
+        - link "X" [ref=e376] [cursor=pointer]:
+          - /url: https://x.com/bc1qwerty
+          - text: 𝕏
+        - link "Bluesky" [ref=e377] [cursor=pointer]:
+          - /url: https://bsky.app/profile/txid.uk
+        - link "Nostr" [ref=e378] [cursor=pointer]:
+          - /url: https://njump.me/npub16qucsfagff58mkac3ynwqyy9rkhw6wgnjk6xre2eagfqxkudqngs4gfc2d
+  - generic [ref=e380]:
+    - generic [ref=e381]:
+      - img [ref=e383]
+      - heading "Welcome to txid.uk!" [level=2] [ref=e388]
+      - paragraph [ref=e389]: Your free Bitcoin block explorer & toolkit
+    - generic [ref=e390]:
+      - generic [ref=e391]:
+        - img [ref=e393]
+        - generic [ref=e396]:
+          - strong [ref=e397]: Search anything
+          - generic [ref=e398]: Search any Bitcoin transaction, address, or block height
+      - generic [ref=e399]:
+        - img [ref=e401]
+        - generic [ref=e406]:
+          - strong [ref=e407]: Explore the ecosystem
+          - generic [ref=e408]: Tools, visualizations, stats, and learning resources
+      - generic [ref=e409]:
+        - img [ref=e411]
+        - generic [ref=e413]:
+          - strong [ref=e414]: Live network data
+          - generic [ref=e415]: Real-time block height, mempool size, fees, and BTC price
+      - generic [ref=e416]:
+        - img [ref=e418]
+        - generic [ref=e420]:
+          - strong [ref=e421]: Platform search
+          - generic [ref=e422]: Press Ctrl+Shift+K to search across all txid.uk services
+    - button "Got it!" [ref=e423] [cursor=pointer]
+```

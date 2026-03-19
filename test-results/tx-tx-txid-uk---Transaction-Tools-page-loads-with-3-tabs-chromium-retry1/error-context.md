@@ -1,0 +1,107 @@
+# Page snapshot
+
+```yaml
+- generic [active] [ref=e1]:
+  - link "Skip to content" [ref=e2] [cursor=pointer]:
+    - /url: "#main"
+  - banner [ref=e3]:
+    - generic [ref=e4]:
+      - link "txid.uk" [ref=e5] [cursor=pointer]:
+        - /url: https://txid.uk
+        - img [ref=e6]
+        - text: txid.uk
+      - text: / TX
+      - generic [ref=e11]:
+        - link "채굴" [ref=e12] [cursor=pointer]:
+          - /url: https://txid.uk/#/mining
+        - link "공부방" [ref=e13] [cursor=pointer]:
+          - /url: https://learn.txid.uk
+      - generic [ref=e14]:
+        - generic [ref=e15]:
+          - button "언어 선택" [ref=e16]: KO
+          - menu "언어 선택" [ref=e17]:
+            - button "한국어" [ref=e18]
+            - button "English" [ref=e19]
+            - button "日本語" [ref=e20]
+        - button "테마 전환" [ref=e21]
+        - generic [ref=e22]:
+          - button "메뉴" [ref=e23]:
+            - img [ref=e24]
+          - generic [ref=e25]:
+            - generic [ref=e26]:
+              - generic [ref=e27]: 언어
+              - generic [ref=e28]:
+                - button "KO" [ref=e29]
+                - button "EN" [ref=e30]
+                - button "JA" [ref=e31]
+            - button "테마 전환" [ref=e33]: 테마 전환
+  - generic [ref=e34]:
+    - img [ref=e35]
+    - text: Learn more
+    - link "What is a TXID?" [ref=e38] [cursor=pointer]:
+      - /url: https://learn.txid.uk/en/blog/what-is-txid/
+    - link "Reading Transactions" [ref=e39] [cursor=pointer]:
+      - /url: https://learn.txid.uk/en/blog/how-to-read-bitcoin-transaction/
+    - link "Fee Guide" [ref=e40] [cursor=pointer]:
+      - /url: https://learn.txid.uk/en/blog/bitcoin-fee-guide/
+  - main [ref=e41]:
+    - generic [ref=e42]:
+      - heading "TX Builder" [level=1] [ref=e43]
+      - paragraph [ref=e44]: Raw Transaction Analysis · PSBT Decoder · Network Broadcast
+    - generic [ref=e45]:
+      - tablist "TX Tools" [ref=e46]:
+        - tab "Broadcast" [selected] [ref=e47]:
+          - img [ref=e48]
+          - text: Broadcast
+        - tab "Decode Raw TX" [ref=e51]:
+          - img [ref=e52]
+          - text: Decode Raw TX
+        - tab "🔎 TX Lookup" [ref=e55]
+      - tabpanel "Broadcast" [ref=e56]:
+        - generic [ref=e57]: Broadcast a signed raw transaction to the Bitcoin mainnet.
+        - generic [ref=e58]:
+          - img [ref=e59]
+          - text: Broadcasts cannot be reversed. Please verify before sending.
+        - text: Paste signed transaction hex
+        - textbox "Paste signed transaction hex" [ref=e61]
+        - generic [ref=e62]:
+          - button "Preview" [ref=e63]:
+            - img [ref=e64]
+            - text: Preview
+          - button "Broadcast" [ref=e67]:
+            - img [ref=e68]
+            - text: Broadcast
+          - button "Clear" [ref=e71]
+      - tabpanel "Decode Raw TX" [ref=e72]:
+        - generic [ref=e73]: Parse and decode raw transaction hex to show detailed input/output info.
+        - text: Enter Raw TX hex
+        - textbox "Enter Raw TX hex" [ref=e74]
+        - button "Decode" [ref=e75]
+      - tabpanel "🔎 TX Lookup" [ref=e76]:
+        - generic [ref=e77]: Look up a transaction on the network by TXID.
+        - generic [ref=e78]:
+          - textbox "TXID" [ref=e79]:
+            - /placeholder: Enter TXID (64-char hex)
+          - button "Lookup" [ref=e80]
+      - generic [ref=e82]:
+        - img [ref=e83]
+        - text: Recommended Fees
+  - contentinfo [ref=e85]:
+    - generic [ref=e86]:
+      - generic [ref=e87]:
+        - text: © 2025
+        - link "txid.uk" [ref=e88] [cursor=pointer]:
+          - /url: https://txid.uk
+        - text: — Bitcoin Explorer
+      - generic [ref=e89]:
+        - text: Powered by mempool.space API ·
+        - link "X" [ref=e90] [cursor=pointer]:
+          - /url: https://x.com/bc1qwerty
+          - text: 𝕏
+        - text: ·
+        - link "Bluesky" [ref=e91] [cursor=pointer]:
+          - /url: https://bsky.app/profile/txid.uk
+        - text: ·
+        - link "Nostr" [ref=e92] [cursor=pointer]:
+          - /url: https://njump.me/npub16qucsfagff58mkac3ynwqyy9rkhw6wgnjk6xre2eagfqxkudqngs4gfc2d
+```
