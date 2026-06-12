@@ -4,27 +4,25 @@ const BASE = 'https://portfolio.txid.uk/en/';
 
 test.describe('portfolio.txid.uk - Portfolio Tracker', () => {
   test('page loads', async ({ page }) => {
-    const response = await page.goto(`${BASE}/en/`);
+    const response = await page.goto(BASE);
     expect(response!.status()).toBeLessThan(400);
-    await expect(page).toHaveTitle(/.+/);
+    await expect(page).toHaveTitle(/Portfolio Tracker/);
   });
 
   test('add address input exists', async ({ page }) => {
-    await page.goto(`${BASE}/en/`);
-    const input = page.locator('input[placeholder*="address" i], input[placeholder*="Address" i], input[type="text"], #address-input, [class*="address"] input');
-    await expect(input.first()).toBeVisible();
+    await page.goto(BASE);
+    const input = page.locator('#addr-input');
+    await expect(input).toBeVisible();
+    await expect(input).toHaveAttribute('placeholder', /address/i);
   });
 
   test('theme toggle works', async ({ page }) => {
-    await page.goto(`${BASE}/en/`);
-    const themeToggle = page.locator('[data-theme-toggle], button:has([class*="theme"]), button:has([class*="dark"]), #theme-toggle, .theme-toggle, button[aria-label*="theme" i]');
+    await page.goto(BASE);
+    const themeToggle = page.locator('#theme-btn');
+    await expect(themeToggle).toBeVisible();
     const html = page.locator('html');
-
-    if (await themeToggle.count() > 0) {
-      const initialTheme = await html.getAttribute('data-theme');
-      await themeToggle.first().click();
-      const newTheme = await html.getAttribute('data-theme');
-      expect(newTheme).not.toBe(initialTheme);
-    }
+    const initialTheme = await html.getAttribute('data-theme');
+    await themeToggle.click();
+    await expect(html).not.toHaveAttribute('data-theme', initialTheme!);
   });
 });

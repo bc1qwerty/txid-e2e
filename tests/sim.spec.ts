@@ -3,13 +3,13 @@ import { test, expect } from '@playwright/test';
 const BASE = 'https://sim.txid.uk';
 
 test.describe('sim.txid.uk - Bitcoin Simulator', () => {
-  test('homepage loads with 5 module cards', async ({ page }) => {
+  test('homepage loads with 6 module cards', async ({ page }) => {
     const response = await page.goto(`${BASE}/en/`);
     expect(response!.status()).toBeLessThan(400);
 
-    const cards = page.locator('[class*="card"], article, [class*="module"], .grid > a, .grid > div');
+    const cards = page.locator('.module-card');
     const count = await cards.count();
-    expect(count).toBeGreaterThanOrEqual(5);
+    expect(count).toBeGreaterThanOrEqual(6);
   });
 
   test('hash module link works', async ({ page }) => {
@@ -29,9 +29,17 @@ test.describe('sim.txid.uk - Bitcoin Simulator', () => {
     expect(response!.status()).toBeLessThan(400);
   });
 
-  test('transaction module link works', async ({ page }) => {
-    const response = await page.goto(`${BASE}/en/transaction/`);
+  test('transaction builder module link works', async ({ page }) => {
+    // Old /en/transaction/ route was renamed to /en/tx-builder/
+    const response = await page.goto(`${BASE}/en/tx-builder/`);
     expect(response!.status()).toBeLessThan(400);
+    await expect(page).toHaveTitle(/transaction builder/i);
+  });
+
+  test('merkle module link works', async ({ page }) => {
+    const response = await page.goto(`${BASE}/en/merkle/`);
+    expect(response!.status()).toBeLessThan(400);
+    await expect(page).toHaveTitle(/merkle/i);
   });
 
   test('blockchain module link works', async ({ page }) => {

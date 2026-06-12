@@ -27,26 +27,27 @@ test.describe('map.txid.uk - Bitcoin World Map', () => {
     expect(count).toBeGreaterThanOrEqual(1);
   });
 
-  test('tab switching (Lightning/Mining) works', async ({ page }) => {
+  test('layer switching (Lightning/Mining) works', async ({ page }) => {
+    // Old tab UI was replaced by layer chips (nav.layer-chips, aria-pressed toggles)
     await page.goto(`${BASE}/en/`);
-    await page.waitForLoadState('domcontentloaded');
+    await page.waitForLoadState('load');
 
-    const tabs = page.locator('[role="tab"], button:has-text("Lightning"), button:has-text("Mining"), [class*="tab"] button, [class*="tab"] a');
-    const count = await tabs.count();
+    const chips = page.locator('.layer-chip');
+    const count = await chips.count();
+    expect(count).toBeGreaterThanOrEqual(2);
 
-    if (count >= 2) {
-      // Click the second tab
-      await tabs.nth(1).click();
-      await page.waitForTimeout(500);
+    const lightning = page.locator('.layer-chip[data-layer="ln"]');
+    const mining = page.locator('.layer-chip[data-layer="mining"]');
 
-      // Verify tab changed (aria-selected or active class)
-      const isSelected = await tabs.nth(1).getAttribute('aria-selected');
-      const hasActive = await tabs.nth(1).getAttribute('class');
+    // Lightning layer is active by default
+    await expect(lightning).toHaveAttribute('aria-pressed', 'true');
+    await expect(mining).toHaveAttribute('aria-pressed', 'false');
 
-      expect(
-        isSelected === 'true' || hasActive?.includes('active') || hasActive?.includes('selected')
-      ).toBeTruthy();
-    }
-    expect(count).toBeGreaterThanOrEqual(1);
+    // Wait for hydration, then switch to the Mining layer
+    await page.waitForTimeout(500);
+    await mining.click();
+
+    await expect(mining).toHaveAttribute('aria-pressed', 'true');
+    await expect(lightning).toHaveAttribute('aria-pressed', 'false');
   });
 });

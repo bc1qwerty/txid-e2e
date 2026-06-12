@@ -11,13 +11,27 @@ test.describe('api.txid.uk - API Server', () => {
     expect(body.status).toBe('ok');
   });
 
-  test('CORS headers present', async ({ request }) => {
-    const response = await request.get(`${BASE}/health`);
+  test('CORS allows trusted origin (txid.uk)', async ({ request }) => {
+    // CORS headers are only emitted for requests carrying an Origin header
+    const response = await request.get(`${BASE}/health`, {
+      headers: { Origin: 'https://txid.uk' },
+    });
     const headers = response.headers();
 
-    // Check for CORS header (may vary by endpoint)
-    const hasCors = !!headers['access-control-allow-origin'] || !!headers['access-control-allow-methods'];
-    expect(hasCors).toBeTruthy();
+    // Allowlisted origin is echoed back exactly - never a wildcard
+    expect(headers['access-control-allow-origin']).toBe('https://txid.uk');
+    expect(headers['access-control-allow-credentials']).toBe('true');
+    expect(headers['vary']).toContain('Origin');
+  });
+
+  test('CORS rejects untrusted origin (no wildcard)', async ({ request }) => {
+    const response = await request.get(`${BASE}/health`, {
+      headers: { Origin: 'https://evil.example.com' },
+    });
+    const headers = response.headers();
+
+    // Untrusted origins must not receive any allow-origin grant
+    expect(headers['access-control-allow-origin']).toBeUndefined();
   });
 
   test('auth challenge endpoint responds', async ({ request }) => {

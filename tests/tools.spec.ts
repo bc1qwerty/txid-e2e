@@ -1,43 +1,44 @@
 import { test, expect } from '@playwright/test';
 
-const BASE = 'https://tools.txid.uk/en/';
+const BASE = 'https://tools.txid.uk';
 
 test.describe('tools.txid.uk - Bitcoin Tools', () => {
-  test('page loads with tool sections', async ({ page }) => {
+  test('tool directory index lists tool cards', async ({ page }) => {
     await page.goto(`${BASE}/en/`);
-    // Check for tool sections/cards
-    const sections = page.locator('h2, h3, details');
-    const count = await sections.count();
+    // Index page is now a tool directory: each tool is a card with an h2 title
+    const cards = page.locator('a.tool-dir-card');
+    const count = await cards.count();
     expect(count).toBeGreaterThanOrEqual(5);
+    // Section headings present too
+    const headings = page.locator('h2.tool-dir-name');
+    expect(await headings.count()).toBeGreaterThanOrEqual(5);
   });
 
   test('Address Validator accepts valid BTC address', async ({ page }) => {
-    await page.goto(`${BASE}/en/`);
-    // Find address-related input
-    const addressInput = page.locator('input[placeholder*="address" i], input[placeholder*="Address" i], #address-input, [data-tool="address"] input').first();
+    // Address validator moved to its own route
+    await page.goto(`${BASE}/en/address-validator/`);
+    const addressInput = page.locator('#addr-input');
     await expect(addressInput).toBeVisible();
 
-    // Enter a valid P2PKH address
+    // Enter a valid P2PKH address (client-side analysis only)
     await addressInput.fill('1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa');
-    // Trigger validation (press Enter or click button)
     await addressInput.press('Enter');
 
-    // Wait briefly for validation result
-    await page.waitForTimeout(1000);
+    // Validation result appears in #addr-result
+    const result = page.locator('#addr-result');
+    await expect(result).toBeVisible();
+    await expect(result).toContainText('P2PKH');
   });
 
   test('Unit Converter shows conversion', async ({ page }) => {
-    await page.goto(`${BASE}/en/`);
-    // Find converter input
-    const converterInput = page.locator('input[type="number"], input[placeholder*="BTC" i], input[placeholder*="amount" i], input[placeholder*="convert" i]').first();
+    // Unit converter moved to its own route
+    await page.goto(`${BASE}/en/unit-converter/`);
+    const btcInput = page.locator('#conv-btc');
+    await expect(btcInput).toBeVisible();
 
-    if (await converterInput.isVisible()) {
-      await converterInput.fill('1');
-      await page.waitForTimeout(500);
-      // Check that some output appeared
-      const body = await page.locator('body').textContent();
-      expect(body).toContain('sat');
-    }
+    await btcInput.fill('1');
+    // 1 BTC = 100,000,000 sats (client-side conversion)
+    await expect(page.locator('#conv-sat')).toHaveValue('100000000');
   });
 
   test('language route /en/ works', async ({ page }) => {

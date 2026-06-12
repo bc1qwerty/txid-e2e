@@ -10,20 +10,24 @@ test.describe('txid.uk - Homepage', () => {
 
   test('search input exists', async ({ page }) => {
     await page.goto(BASE);
-    const searchInput = page.locator('input[type="search"], input[type="text"][placeholder*="search" i], input[placeholder*="Search" i], [role="search"] input');
-    await expect(searchInput.first()).toBeVisible();
+    // Hero search is the primary homepage search (nav #search-input also exists;
+    // #mobile-search-input lives in a hidden overlay, so avoid union selectors).
+    const heroSearch = page.locator('#hero-search');
+    await expect(heroSearch).toBeVisible();
+    await expect(heroSearch).toHaveAttribute('placeholder', /search/i);
   });
 
   test('theme toggle works', async ({ page }) => {
     await page.goto(BASE);
-    const themeToggle = page.locator('[data-theme-toggle], button:has([class*="theme"]), button:has([class*="dark"]), #theme-toggle, .theme-toggle');
+    // #theme-btn is the visible desktop toggle; #hamburger-theme-btn is hidden
+    // inside the mobile settings menu and must not be matched.
+    const themeToggle = page.locator('#theme-btn');
     const html = page.locator('html');
 
     const initialTheme = await html.getAttribute('data-theme');
-    await themeToggle.first().click();
-    const newTheme = await html.getAttribute('data-theme');
-
-    expect(newTheme).not.toBe(initialTheme);
+    expect(initialTheme).toBeTruthy();
+    await themeToggle.click();
+    await expect(html).not.toHaveAttribute('data-theme', initialTheme!);
   });
 
   test('language switch works', async ({ page }) => {
