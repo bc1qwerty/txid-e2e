@@ -16,15 +16,21 @@ test.describe('tx.txid.uk - Transaction Tools', () => {
     await page.goto(BASE);
     const tabs = page.locator('.tab-btn, [role="tab"], button[data-tab]');
 
-    // Click each tab and verify it becomes active and its panel is shown.
-    // Note: current site JS toggles .active/.hidden classes on click but does
-    // not re-sync aria-selected (static markup only sets it on initial load).
+    // Click each tab and verify it becomes active (class + aria-selected)
+    // and its panel is shown. aria-selected sync was a real a11y bug found
+    // by this suite on 2026-06-12 and fixed in monorepo apps/tx.
     const tabCount = await tabs.count();
     for (let i = 0; i < Math.min(tabCount, 3); i++) {
       await tabs.nth(i).click();
       await page.waitForTimeout(300);
 
       await expect(tabs.nth(i)).toHaveClass(/active/);
+      await expect(tabs.nth(i)).toHaveAttribute('aria-selected', 'true');
+      // All other tabs must be deselected (radio-style sync)
+      for (let j = 0; j < Math.min(tabCount, 3); j++) {
+        if (j === i) continue;
+        await expect(tabs.nth(j)).toHaveAttribute('aria-selected', 'false');
+      }
       const panelId = await tabs.nth(i).getAttribute('aria-controls');
       expect(panelId).toBeTruthy();
       await expect(page.locator(`#${panelId}`)).toBeVisible();
