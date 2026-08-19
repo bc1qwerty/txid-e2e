@@ -35,10 +35,19 @@ jobs:
           key: ${{ runner.os }}-playwright-${{ hashFiles('package-lock.json') }}
       - name: Install Playwright browser
         if: steps.pw-cache.outputs.cache-hit != 'true'
-        run: npx playwright install --with-deps chromium
-      # OS 의존 패키지는 캐시 디렉토리에 안 남으므로 적중 여부와 무관하게 매번 필요하다.
-      - name: Install Playwright OS deps (cache hit)
-        if: steps.pw-cache.outputs.cache-hit == 'true'
+        run: npx playwright install chromium
+      # ⚠OS 의존 패키지(apt)는 **job 을 막지 못하게** 한다.
+      # 2026-08-19 실측: 캐시는 적중했는데 `install-deps` 안의 `apt-get update` 가
+      # `archive.ubuntu.com` 의 noble-security InRelease 에서 **29분** 매달려
+      # job 타임아웃을 통째로 먹었다(같은 날 learn·private-shop·lib 도 동일).
+      # GitHub 러너 이미지에는 Chromium 이 필요한 라이브러리가 이미 들어 있어서
+      # `--with-deps` 는 사실상 맨 컨테이너용이다. 그래서 시도는 하되 실패·지연에
+      # 관계없이 넘어간다 — 진짜로 라이브러리가 없으면 그 다음 테스트가 즉시,
+      # 그리고 알아볼 수 있게 실패한다. 무인 야간 스모크가 apt 사정에 인질로
+      # 잡히는 것보다 그게 낫다.
+      - name: Install Playwright OS deps (best effort)
+        continue-on-error: true
+        timeout-minutes: 4
         run: npx playwright install-deps chromium
       # Suite targets live production https://*.txid.uk URLs only; no secrets,
       # no local servers required. Full suite re-enabled 2026-06-12 after the
