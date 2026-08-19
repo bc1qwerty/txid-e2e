@@ -37,15 +37,33 @@ test.describe('apps.txid.uk - App Directory', () => {
     const count = await cards.count();
     expect(count).toBeGreaterThanOrEqual(1);
 
-    // Cards now point to internal detail routes (/en/<slug>/)
+    // Cards come in two kinds (AppCard.astro): entries with `external: true` in
+    // their content frontmatter link straight out to the thing itself and open
+    // in a new tab, everything else gets an internal detail route /en/<slug>/.
+    // The suite used to assume every card was internal, which broke once the
+    // Telegram-bot entries (href https://t.me/...) landed.
+    let internalSeen = 0;
     for (let i = 0; i < Math.min(count, 20); i++) {
-      const href = await cards.nth(i).getAttribute('href');
+      const card = cards.nth(i);
+      const href = await card.getAttribute('href');
       expect(href).toBeTruthy();
-      expect(href).toMatch(/^\/en\/[a-z0-9-]+\/$/);
-    }
 
-    // Navigating into the first card opens an app detail page
-    await cards.first().click();
+      if ((await card.getAttribute('target')) === '_blank') {
+        // External: absolute URL, and rel must carry noopener — target=_blank
+        // without it hands the opener window to the destination.
+        expect(href).toMatch(/^https?:\/\//);
+        expect(await card.getAttribute('rel')).toContain('noopener');
+      } else {
+        expect(href).toMatch(/^\/en\/[a-z0-9-]+\/$/);
+        internalSeen++;
+      }
+    }
+    expect(internalSeen).toBeGreaterThanOrEqual(1);
+
+    // Navigating into the first internal card opens an app detail page.
+    // (Clicking an external one would just open a new tab off-site.)
+    // :not() on the anchor itself — filter({hasNot}) would test descendants.
+    await page.locator('a.app-card:not([target="_blank"])').first().click();
     await expect(page.locator('h1.detail-title')).toBeVisible();
     expect(page.url()).toMatch(/^https:\/\/apps\.txid\.uk\/en\/[a-z0-9-]+\/$/);
   });
