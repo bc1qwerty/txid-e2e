@@ -1,0 +1,41 @@
+name: Keepalive
+
+# GitHub은 저장소에 60일간 커밋/푸시가 없으면 schedule 워크플로우를 자동
+# 비활성화한다(예약 실행 자체는 활동으로 세지 않음). 한 달에 한 번 타임스탬프
+# 커밋을 남겨 그 타이머를 리셋해 ci.yml의 야간 스모크가 계속 살아있게 한다.
+#
+# 왜 필요한가(2026-08-19): 이 저장소는 정확히 그렇게 죽었다. 마지막 커밋이
+# 2026-06-12였고 60일 뒤인 08-11에 GitHub이 E2E를 `disabled_inactivity`로 껐다.
+# 프로덕션 야간 스모크가 8일간 아예 돌지 않았는데 아무 신호도 없었다 —
+# 워크플로 안의 실패 알림은 워크플로가 도는 동안에만 유효하기 때문이다.
+# 이 저장소는 사이트가 아니라 사이트를 감시하는 코드라, 스스로는 거의 커밋될
+# 일이 없다. 즉 이 타이머는 **반드시** 다시 걸린다.
+#
+# best-archive-bot이 같은 이유로 이미 쓰고 있는 패턴을 그대로 가져왔다.
+on:
+  schedule:
+    - cron: '17 3 1 * *'   # 매월 1일 03:17 UTC
+  workflow_dispatch:
+
+concurrency:
+  group: keepalive
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  keepalive:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Bump keepalive timestamp and push
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          date -u +"%Y-%m-%dT%H:%M:%SZ" > .keepalive
+          git add .keepalive
+          git commit -m "chore(ci): keepalive to prevent 60-day inactivity disable"
+          git push
