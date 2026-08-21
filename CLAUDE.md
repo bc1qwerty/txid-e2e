@@ -19,7 +19,6 @@ End-to-end test suite for all txid.uk subdomains. Uses Playwright to verify func
   - `tx.spec.ts` -- Transaction explorer
   - `sim.spec.ts` -- Simulator
   - `id.spec.ts` -- Identity
-  - `portfolio.spec.ts` -- Portfolio
   - `news.spec.ts` -- News subdomain
   - `community.spec.ts` -- Community subdomain
   - `api.spec.ts` -- api.txid.uk endpoints
