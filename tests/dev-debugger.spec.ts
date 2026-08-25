@@ -2,9 +2,23 @@ import { test, expect } from '@playwright/test';
 
 const BASE = 'https://dev.txid.uk';
 
+// The debugger is an Astro island with client="visible": the SSR markup ships with a
+// textarea and a 실행 button that have no handlers attached yet. Clicking before the
+// island hydrates does nothing at all, and the test then waits for output that never
+// arrives. Astro drops the `ssr` attribute once hydration finishes, so gate on that.
+async function openDebugger(page: import('@playwright/test').Page) {
+  await page.goto(`${BASE}/tools/script-debugger`);
+  // client="visible" only hydrates once the island is in view.
+  await page.locator('textarea').scrollIntoViewIfNeeded();
+  // Pin the gate to this page's own island. A bare `astro-island:not([ssr])` would match
+  // whichever island hydrates first, so adding any second island to the page later would
+  // silently disarm the wait.
+  await page.waitForSelector('astro-island[component-export="ScriptDebugger"]:not([ssr])');
+}
+
 test.describe('dev.txid.uk - Script Debugger', () => {
   test('loads /tools/script-debugger and executes a simple script', async ({ page }) => {
-    await page.goto(`${BASE}/tools/script-debugger`);
+    await openDebugger(page);
     await expect(page.locator('h1')).toContainText('스크립트 디버거');
 
     // Enter ASM and click 실행
@@ -20,14 +34,14 @@ test.describe('dev.txid.uk - Script Debugger', () => {
   });
 
   test('displays parse error for invalid input', async ({ page }) => {
-    await page.goto(`${BASE}/tools/script-debugger`);
+    await openDebugger(page);
     await page.locator('textarea').fill('OP_NOT_A_REAL_OPCODE');
     await page.getByRole('button', { name: '실행' }).click();
     await expect(page.getByRole('alert')).toBeVisible();
   });
 
   test('step controls navigate trace', async ({ page }) => {
-    await page.goto(`${BASE}/tools/script-debugger`);
+    await openDebugger(page);
     await page.locator('textarea').fill('OP_1 OP_2 OP_ADD');
     await page.getByRole('button', { name: '실행' }).click();
 
