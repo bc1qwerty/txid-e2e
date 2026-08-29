@@ -2,11 +2,14 @@ import { test, expect, Page } from '@playwright/test';
 
 const BASE = 'https://news.txid.uk';
 
-// Front page article teasers are <button> elements that open a <dialog class="np-modal">.
+// Front page article teasers are <a href="/post/..."> elements that open a
+// <dialog class="np-modal"> on a plain click (news.txid.uk 385477e, 2026-08-27 —
+// they were <button> before, which left the front page with no crawlable path to
+// any article). Modifier-clicks and middle-clicks still navigate.
 // Hydration of the Next.js page may lag behind first paint, so retry the click.
 async function openLeadArticle(page: Page) {
   await page.goto(`${BASE}/`);
-  const lead = page.locator('main button.group').first();
+  const lead = page.locator('main a.group').first();
   await lead.waitFor();
   const modal = page.locator('dialog.np-modal');
   for (let i = 0; i < 5; i++) {
@@ -41,7 +44,7 @@ test.describe('news.txid.uk - Newspaper Front Page', () => {
     await expect(leadHeadline).toBeVisible();
     expect((await leadHeadline.textContent())!.trim().length).toBeGreaterThan(10);
     // Multiple article teasers (lead + side/bottom columns)
-    const teasers = page.locator('main button.group');
+    const teasers = page.locator('main a.group');
     expect(await teasers.count()).toBeGreaterThanOrEqual(5);
     // Lead teaser carries a category badge
     await expect(teasers.first().locator('span').first()).toContainText(
