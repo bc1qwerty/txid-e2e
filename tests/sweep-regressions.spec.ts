@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+import { test, expect } from '../fixtures';
 
 // Locks in the 2026-08-31 ~ 09-01 full-fleet sweep fixes so they cannot
 // silently regress. Each test names the incident it guards against.
