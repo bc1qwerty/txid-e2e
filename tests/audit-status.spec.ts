@@ -1,4 +1,4 @@
-import { test, expect } from "@playwright/test";
+import { test, expect } from "../fixtures";
 
 test("status home renders hero + grid", async ({ page }) => {
   await page.goto("https://status.txid.uk/");
