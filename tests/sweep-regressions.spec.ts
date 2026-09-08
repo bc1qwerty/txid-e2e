@@ -24,13 +24,23 @@ test.describe('sweep regressions (2026-09)', () => {
     }
   });
 
-  test('dev.txid.uk loads JetBrains Mono from a live CDN path', async ({ request }) => {
-    // archive 56881a5: the old gh/JetBrains/JetBrainsMono /web/css path was
-    // deleted upstream and 404ed for every visitor (fallback font only).
-    const html = await (await request.get('https://dev.txid.uk/en/')).text();
-    const cssUrl = html.match(/href="(https:\/\/cdn\.jsdelivr\.net\/npm\/@fontsource\/jetbrains-mono[^"]+index\.css)"/)?.[1];
-    expect(cssUrl, 'fontsource CSS link must be present').toBeTruthy();
-    expect((await request.get(cssUrl!)).status()).toBe(200);
+  test('dev.txid.uk actually serves its JetBrains Mono CSS', async ({ request }) => {
+    // 지키려는 것: **폰트 CSS 링크가 있고 실제로 200 을 준다.**
+    // archive 56881a5: 옛 gh/JetBrains/JetBrainsMono /web/css 경로가 upstream 에서
+    // 삭제돼 모든 방문자가 404 를 받고 폴백 폰트를 보고 있었다. 그 재발을 막는 시험이다.
+    //
+    // ⚠ 2026-09-07 에 폰트를 **셀프호스팅**으로 옮기면서(jsdelivr → /fonts/…) 이 시험이
+    //   깨졌다. 사이트는 의도대로 개선됐는데 시험이 옛 구현(jsdelivr URL)을 못 박고
+    //   있었던 탓이다. **구현 방식이 아니라 결과를 본다** — 어디서 오든 링크가 있고
+    //   200 이면 통과. 상대경로·절대경로 둘 다 받아들이고, 여러 개면 전부 확인한다.
+    const origin = 'https://dev.txid.uk';
+    const html = await (await request.get(`${origin}/en/`)).text();
+    const hrefs = [...html.matchAll(/href="([^"]*jetbrains-mono[^"]*\.css)"/gi)].map((m) => m[1]);
+    expect(hrefs.length, 'JetBrains Mono CSS link must be present').toBeGreaterThan(0);
+    for (const href of hrefs) {
+      const url = href.startsWith('http') ? href : new URL(href, origin).toString();
+      expect((await request.get(url)).status(), `${url} must serve 200`).toBe(200);
+    }
   });
 
   test('lokl.txid.uk unknown path returns a real 404 page (not empty body)', async ({ request }) => {
