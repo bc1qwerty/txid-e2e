@@ -95,15 +95,25 @@ test.describe('community.txid.uk - Community Board (Lightning paywall)', () => {
   });
 
   test('theme toggle switches between dark and light', async ({ page }) => {
-    await page.goto(`${BASE}/`, { waitUntil: 'networkidle' });
+    await page.goto(`${BASE}/`);
     const toggle = page.locator('button[aria-label="Toggle theme"]');
     await expect(toggle).toBeVisible();
 
     const before = (await page.locator('html').getAttribute('class')) || '';
     const wasDark = /\bdark\b/.test(before);
-    await toggle.click();
-    await expect(page.locator('html')).toHaveClass(wasDark ? /light/ : /dark/, {
-      timeout: LOAD_TIMEOUT,
-    });
+    const target = wasDark ? /light/ : /dark/;
+    // Hydration may lag behind first paint and a pre-hydration click is a
+    // silent no-op, so retry the click (same pattern as news.spec.ts
+    // openLeadArticle). Once hydrated, the class flips within the short wait.
+    for (let i = 0; i < 5; i++) {
+      await toggle.click();
+      try {
+        await expect(page.locator('html')).toHaveClass(target, { timeout: 2000 });
+        break;
+      } catch {
+        // not hydrated yet, retry
+      }
+    }
+    await expect(page.locator('html')).toHaveClass(target);
   });
 });
