@@ -64,10 +64,21 @@ jobs:
           path: playwright-report/
           retention-days: 14
       # Silent-failure guard: schedule runs nobody watches must page.
+      # ⚠ 2026-09-15: 호출기 자신이 조용했다. `-sf … || true` 는 401·403·429 를 전부
+      #   삼켜서, "아무도 안 보는 실행은 호출해야 한다" 고 적어 둔 바로 그 경로가
+      #   말없이 아무것도 안 하는 상태가 될 수 있었다. 이제 실패하면 ::error:: 로
+      #   남긴다 — 이 잡은 이미 failure() 조건이라 실행 결론은 그대로 실패고,
+      #   check-gha-health 가 다음 아침에 잡는다.
+      # ⚠시크릿을 run 스크립트에 직접 보간하지 않고 env 로 넘긴다.
       - name: Notify Telegram on failure
         if: failure()
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          EVENT: ${{ github.event_name }}
         run: |
-          curl -sf -X POST "https://api.telegram.org/bot${{ secrets.TELEGRAM_BOT_TOKEN }}/sendMessage" \
-            -d chat_id="${{ secrets.TELEGRAM_CHAT_ID }}" \
-            --data-urlencode text="🔴 txid-e2e failed (from gha/${{ github.event_name }}): https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}" \
-            || true
+          curl -sS --fail-with-body -X POST "https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage" \
+            -d chat_id="${TELEGRAM_CHAT_ID}" \
+            --data-urlencode text="🔴 txid-e2e failed (from gha/${EVENT}): ${RUN_URL}" \
+            || echo "::error::텔레그램 호출 실패 — 이 실패는 사람에게 닿지 않았다"
