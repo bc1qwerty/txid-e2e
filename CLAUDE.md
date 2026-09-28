@@ -26,7 +26,7 @@ End-to-end test suite for all txid.uk subdomains. Uses Playwright to verify func
   - `dev-debugger.spec.ts` -- dev.txid.uk script debugger
   - `audit-status.spec.ts` -- status.txid.uk + dev.txid.uk availability
   - `sweep-regressions.spec.ts` -- request-level locks for the 2026-08/09 full-fleet sweep fixes (www redirect, lokl 404, matrix CSP, ...)
-  - `fleet-smoke.spec.ts` -- request-level availability for ghs, dash, txt, blog
+  - `fleet-smoke.spec.ts` -- request-level availability for ghs, dash, txt, blog, map
 - `playwright.config.ts` -- Playwright configuration
 - `run-tests.sh` -- Test runner script
 - Root `*.mjs` debug scripts were removed 2026-09-14 (stale 2026-04 one-offs targeting moved URLs; recover from git history if ever needed)
@@ -44,4 +44,4 @@ bash run-tests.sh     # Run via shell script
 - Consumed remotely: archive's post-deploy smoke job checks out this repo and runs the deployed sites' specs
 
 ## Status
-- Active. 14 spec files covering 19 live txid.uk hosts.
+- Active. 14 spec files covering 20 live txid.uk hosts.
