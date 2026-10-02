@@ -123,4 +123,53 @@ test.describe('tx.txid.uk - Transaction Tools', () => {
       await expectLocaleLanding(page, 'https://tx.txid.uk', route);
     });
   }
+
+  // 🔴 디코더는 **네트워크와 같은 말**을 해야 한다. 예전에는 입력의 스크립트 종류를
+  //    판별하지 못해 「Unknown」으로 남겼고, segwit 을 그대로 해시해서 **wtxid** 를
+  //    TXID 라고 내놨다 — 64자 hex 라 멀쩡해 보이지만 어느 탐색기에서도 안 찾아진다.
+  // ⚠ 일부러 **segwit** 트랜잭션을 고른다. witness 가 없으면 wtxid 와 txid 가 같아서,
+  //   segwit 을 틀리게 다루는 디코더도 TXID 단언을 통과한다.
+  // 🔑 원래 txid-web 의 check-tx-decode.mjs 였다(배포되지 않는 사본을 검사하고 있었다).
+  test('디코드 결과가 네트워크와 일치하는가', async ({ page, request }) => {
+    const recentRes = await request.get('https://mempool.space/api/mempool/recent').catch(() => null);
+    test.skip(!recentRes || !recentRes.ok(), 'mempool.space 에 닿지 않는다');
+    let txid = '';
+    let tx: any = null;
+    for (const r of (await recentRes!.json()).slice(0, 12)) {
+      const res = await request.get(`https://mempool.space/api/tx/${r.txid}`).catch(() => null);
+      if (!res || !res.ok()) continue;
+      const cand = await res.json();
+      if (cand.vin.some((v: any) => v.witness && v.witness.length)) { txid = r.txid; tx = cand; break; }
+    }
+    test.skip(!txid, '최근 목록에 segwit 트랜잭션이 없다');
+    const hexRes = await request.get(`https://mempool.space/api/tx/${txid}/hex`).catch(() => null);
+    test.skip(!hexRes || !hexRes.ok(), 'mempool.space 에 닿지 않는다');
+    const hex = (await hexRes!.text()).trim();
+    const totalOut = tx.vout.reduce((acc: number, o: any) => acc + o.value, 0);
+
+    const errs: string[] = [];
+    page.on('pageerror', (e) => errs.push(e.message.slice(0, 100)));
+    await page.goto(BASE);
+    await page.locator('#tab-decode').click();
+    await page.locator('#decode-tx').fill(hex);
+    await page.locator('#btn-decode-only').click();
+    const result = page.locator('#decode-result');
+    await expect.poll(async () => (await result.innerText()).length > 0, { timeout: 20_000 }).toBe(true);
+    const text = (await result.innerText()).replace(/\s+/g, ' ');
+
+    expect(errs, 'JS 오류').toEqual([]);
+    expect(text).not.toMatch(/undefined|NaN/);
+    expect(text).toContain(`${tx.size} bytes`);
+    expect(text).toContain(`(${tx.vin.length}`);
+    expect(text).toContain(`(${tx.vout.length}`);
+    expect(text).toContain(`${(totalOut / 1e8).toFixed(8)} BTC`);
+    // 이 가드가 있는 이유인 라벨: 디코드는 됐는데 아무 말도 못 하는 입력.
+    expect(text, '입력 또는 출력이 Unknown 으로 남았다').not.toMatch(/Unknown/);
+    // ⚠ **계산된 TXID 단언은 아직 못 건다.** 배포된 tx.txid.uk 에는 그 표시가 없다 —
+    //   `~/txid-web/tx.txid.uk` 사본에만 있는 기능이고(`computeTxid`), 옮기려면 파서가
+    //   bodyStart/bodyEnd 를 같이 내도록 고쳐야 한다. 그 기능이 배포되면 여기에
+    //   `expect(text).toContain(txid)` 를 더할 것 — segwit 을 그대로 해시하면 wtxid 가
+    //   나오는데 64자 hex 라 멀쩡해 보이고 어느 탐색기에서도 안 찾아진다. 디코더가
+    //   「맞아 보이게」 틀릴 수 있는 유일한 값이라 그때 꼭 봐야 한다.
+  });
 });
