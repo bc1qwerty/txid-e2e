@@ -165,11 +165,11 @@ test.describe('tx.txid.uk - Transaction Tools', () => {
     expect(text).toContain(`${(totalOut / 1e8).toFixed(8)} BTC`);
     // 이 가드가 있는 이유인 라벨: 디코드는 됐는데 아무 말도 못 하는 입력.
     expect(text, '입력 또는 출력이 Unknown 으로 남았다').not.toMatch(/Unknown/);
-    // ⚠ **계산된 TXID 단언은 아직 못 건다.** 배포된 tx.txid.uk 에는 그 표시가 없다 —
-    //   `~/txid-web/tx.txid.uk` 사본에만 있는 기능이고(`computeTxid`), 옮기려면 파서가
-    //   bodyStart/bodyEnd 를 같이 내도록 고쳐야 한다. 그 기능이 배포되면 여기에
-    //   `expect(text).toContain(txid)` 를 더할 것 — segwit 을 그대로 해시하면 wtxid 가
-    //   나오는데 64자 hex 라 멀쩡해 보이고 어느 탐색기에서도 안 찾아진다. 디코더가
-    //   「맞아 보이게」 틀릴 수 있는 유일한 값이라 그때 꼭 봐야 한다.
+    // 🔴 디코더가 「맞아 보이게」 틀릴 수 있는 **유일한 값**이다. segwit 을 받은 그대로
+    //    해시하면 wtxid 가 나오는데 64자 hex 라 멀쩡해 보이고 어느 탐색기에서도 안
+    //    찾아진다. 그래서 일부러 segwit 트랜잭션을 고른다(위 참고).
+    // ⚠ crypto.subtle 이 비동기라 패널보다 늦게 채워진다. 기다렸다 본다.
+    await expect.poll(async () => (await result.innerText()).includes(txid), { timeout: 10_000 })
+      .toBe(true);
   });
 });
