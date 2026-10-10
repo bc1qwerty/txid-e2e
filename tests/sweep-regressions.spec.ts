@@ -55,13 +55,14 @@ test.describe('sweep regressions (2026-09)', () => {
 
   test('status.txid.uk serves /site/<slug>/ directly and lists no retired sites', async ({ request }) => {
     // status.txid.uk ced5569: card hrefs lacked trailing slash (301 hop) and
-    // /api/sites leaked disabled rows, baking pages for retired unfog/map/....
+    // /api/sites leaked disabled rows, baking pages for retired unfog/chat/....
     const direct = await request.get('https://status.txid.uk/site/api/', { maxRedirects: 0 });
     expect(direct.status()).toBe(200);
 
     const sites = await (await request.get('https://status.txid.uk/api/sites')).json();
     const slugs = sites.map((s: { slug: string }) => s.slug);
-    for (const retired of ['unfog', 'chat', 'map', 'portfolio']) {
+    // map.txid.uk 은 2026-09-23 에 되살아나 status 에 다시 등록됐다 — 목록에서 뺐다.
+    for (const retired of ['unfog', 'chat', 'portfolio']) {
       expect(slugs).not.toContain(retired);
     }
 
