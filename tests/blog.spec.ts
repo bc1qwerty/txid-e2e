@@ -42,10 +42,25 @@ test.describe('blog.txid.uk', () => {
     await expect(page.locator(href!)).toHaveCount(1);
   });
 
-  test('RSS 와 사이트맵이 선다', async ({ request }) => {
-    for (const p of ['/rss.xml', '/sitemap-index.xml']) {
-      const r = await request.get(BASE + p);
-      expect(r.status(), p).toBeLessThan(400);
+  test('RSS 가 선다', async ({ request }) => {
+    const r = await request.get(BASE + '/rss.xml');
+    expect(r.status()).toBeLessThan(400);
+  });
+
+  // 공개 글이 0편이면 사이트 전체가 noindex 이고 사이트맵이 없다(2026-10-10). 셋은 같은
+  // 글 수로 정해지므로 서로 어긋나면 안 된다 — 첫 글 뒤에 noindex 가 남는 것이 최악이다.
+  test('robots.txt·사이트맵·robots 메타가 서로 맞는다', async ({ request, page }) => {
+    const robots = await (await request.get(BASE + '/robots.txt')).text();
+    expect(robots).toContain('Allow: /');
+    const hasSitemap = /^Sitemap:/m.test(robots);
+    await page.goto(BASE + '/');
+    const meta = await page.locator('meta[name="robots"]').getAttribute('content');
+    if (hasSitemap) {
+      expect(meta).not.toContain('noindex');
+      const r = await request.get(BASE + '/sitemap-index.xml');
+      expect(r.status()).toBeLessThan(400);
+    } else {
+      expect(meta).toContain('noindex');
     }
   });
 
