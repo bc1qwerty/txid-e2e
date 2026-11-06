@@ -1,55 +1,45 @@
-import { test, expect, Page } from '../fixtures';
+import { test, expect } from '../fixtures';
 
 const BASE = 'https://news.txid.uk';
 
-// Front page article teasers are <a href="/post/..."> elements that open a
-// <dialog class="np-modal"> on a plain click (news.txid.uk 385477e, 2026-08-27 —
-// they were <button> before, which left the front page with no crawlable path to
-// any article). Modifier-clicks and middle-clicks still navigate.
-// Hydration of the Next.js page may lag behind first paint, so retry the click.
-async function openLeadArticle(page: Page) {
-  await page.goto(`${BASE}/`);
-  const lead = page.locator('main a.group').first();
-  await lead.waitFor();
-  const modal = page.locator('dialog.np-modal');
-  for (let i = 0; i < 5; i++) {
-    await lead.click();
-    try {
-      await modal.waitFor({ state: 'visible', timeout: 2000 });
-      break;
-    } catch {
-      // not hydrated yet, retry
-    }
-  }
-  await expect(modal).toBeVisible();
-  return modal;
-}
-
-test.describe('news.txid.uk - Newspaper Front Page', () => {
-  test('masthead renders newspaper header with edition line', async ({ page }) => {
+// 2026-11-04 메인이 신문 1면(마스트헤드·티저 칸·기사 모달)에서 최신순 블로그형으로
+// 바뀌었다(news.txid.uk b173388): 최신 1편(h2) + 목록(h3) + 사이드바 «Daily digest».
+// 기사 모달도 없어져 제목을 누르면 /post/ 페이지로 바로 간다.
+test.describe('news.txid.uk - Front Page', () => {
+  test('site title is the page h1', async ({ page }) => {
     await page.goto(`${BASE}/`);
-    // Masthead title inside <main> (site nav header is separate)
-    const masthead = page.locator('main header');
-    await expect(masthead.locator('h1')).toHaveText(/TXID News/i);
-    // Tagline + dateline with edition number, e.g. "No. 90"
-    await expect(masthead).toContainText('No altcoins. No noise.');
-    await expect(masthead).toContainText(/No\.\s*\d+/);
-    await expect(masthead).toContainText('news.txid.uk');
+    await expect(page.locator('main h1')).toHaveText(/TXID News/i);
   });
 
-  test('front page shows lead story and teaser columns', async ({ page }) => {
+  test('front page shows the latest post and a list of posts', async ({ page }) => {
     await page.goto(`${BASE}/`);
-    // Lead headline is an np-serif h2 inside a clickable teaser
-    const leadHeadline = page.locator('main h2.np-serif').first();
-    await expect(leadHeadline).toBeVisible();
-    expect((await leadHeadline.textContent())!.trim().length).toBeGreaterThan(10);
-    // Multiple article teasers (lead + side/bottom columns)
-    const teasers = page.locator('main a.group');
-    expect(await teasers.count()).toBeGreaterThanOrEqual(5);
-    // Lead teaser carries a category badge
-    await expect(teasers.first().locator('span').first()).toContainText(
+    const lead = page.locator('main article').first();
+    const leadLink = lead.locator('h2 a[href^="/post/"]');
+    await expect(leadLink).toBeVisible();
+    expect((await leadLink.textContent())!.trim().length).toBeGreaterThan(10);
+    await expect(lead.locator('a[href^="/category/"]').first()).toHaveText(
       /bitcoin|macro|politics|opinion/i
     );
+    // 최신 1편 + 목록(14편 안팎)
+    expect(await page.locator('main article h3 a[href^="/post/"]').count()).toBeGreaterThanOrEqual(5);
+  });
+
+  test('sidebar shows the daily digest', async ({ page }) => {
+    await page.goto(`${BASE}/`);
+    const digest = page.locator('main details').filter({ hasText: 'Daily digest' });
+    await expect(digest).toHaveCount(1);
+    await expect(digest.locator('a[href^="/digest/"]')).toHaveAttribute('href', /\/digest\/\d{4}-\d{2}-\d{2}$/);
+  });
+
+  test('clicking the latest post opens its article page', async ({ page }) => {
+    await page.goto(`${BASE}/`);
+    const leadLink = page.locator('main article').first().locator('h2 a[href^="/post/"]');
+    const headline = (await leadLink.textContent())!.trim();
+    const href = await leadLink.getAttribute('href');
+    await leadLink.click();
+    await expect(page).toHaveURL(new RegExp(`${href}$`));
+    await expect(page.locator('article')).toBeVisible();
+    await expect(page.locator('article')).toContainText(headline.slice(0, 40));
   });
 
   test('header nav links to category pages', async ({ page }) => {
@@ -58,35 +48,6 @@ test.describe('news.txid.uk - Newspaper Front Page', () => {
     await expect(nav.locator('a[href="/category/bitcoin"]')).toBeVisible();
     await expect(nav.locator('a[href="/category/macro"]')).toBeVisible();
     await expect(nav.locator('a[href="/category/politics"]')).toBeVisible();
-  });
-
-  test('clicking a teaser opens the article modal', async ({ page }) => {
-    await page.goto(`${BASE}/`);
-    const headline = (await page.locator('main h2.np-serif').first().textContent())!.trim();
-    const modal = await openLeadArticle(page);
-    // Modal shows the article (headline text + close button + scrollable body)
-    await expect(modal).toContainText(headline.slice(0, 40));
-    await expect(modal.locator('button[aria-label="Close"]')).toBeVisible();
-  });
-
-  test('modal locks document scroll (no double scrollbar) and Escape restores it', async ({
-    page,
-  }) => {
-    const modal = await openLeadArticle(page);
-    // Body scroll is locked while the modal is open — only the modal scroller scrolls
-    expect(await page.evaluate(() => getComputedStyle(document.body).overflow)).toBe('hidden');
-    await expect(modal.locator('.overflow-y-auto').first()).toBeVisible();
-    // Wheel must not move the document behind the modal
-    const before = await page.evaluate(() => window.scrollY);
-    await page.mouse.wheel(0, 600);
-    await page.waitForTimeout(300);
-    expect(await page.evaluate(() => window.scrollY)).toBe(before);
-    // Escape closes the modal and releases the scroll lock
-    await page.keyboard.press('Escape');
-    await expect(modal).toBeHidden();
-    await expect
-      .poll(() => page.evaluate(() => getComputedStyle(document.body).overflow))
-      .not.toBe('hidden');
   });
 
   test('category page /category/bitcoin renders post list', async ({ page }) => {
