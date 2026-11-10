@@ -6,8 +6,8 @@ const BASE = 'https://blog.txid.uk';
 //    워크플로의 스모크 잡은 `tests/<short>.spec.ts` 이름 규약으로만 스펙을 고르고,
 //    **못 찾으면 배포를 실패시킨다**(검사 0건이 초록불이 되는 것을 막는 장치다).
 //    그래서 이 파일이 있어야 blog 가 배포된다.
-// ⚠ 글이 아직 한 편도 없다(src/content/posts 가 비어 있다). 글 목록을 단언하면
-//   첫 글이 올라오기 전까지 영영 빨간불이라, 여기서는 **글과 무관한 뼈대**만 본다.
+// 2026-11-10 부터 log.txid.uk(티스토리) 글의 noindex 사본이다. 글 수는 매시 동기화로
+//   바뀌므로 개수는 단언하지 않고, 목록·카테고리 줄·검색 같은 **뼈대**를 본다.
 test.describe('blog.txid.uk', () => {
   test('page loads', async ({ page }) => {
     const response = await page.goto(BASE + '/');
@@ -17,8 +17,8 @@ test.describe('blog.txid.uk', () => {
 
   test('공용 헤더가 있고 언어 고르개는 없다', async ({ page }) => {
     await page.goto(BASE + '/');
-    await expect(page.locator('header .logo')).toBeVisible();
-    await expect(page.locator('header .logo-sub')).toHaveText('Blog');
+    // 로고 자리에 사이트 이름(blog.txid.uk)을 둔다 — 예전 «txid.uk / Blog» 의 logo-sub 는 없앴다.
+    await expect(page.locator('header .logo')).toHaveText('blog.txid.uk');
     // 한국어 한 벌짜리 사이트다 — 고르개가 보이면 없는 번역을 약속하는 셈이다.
     await expect(page.locator('.lang-dropdown')).toHaveCount(0);
     await expect(page.locator('#hamburger-panel .settings-lang-row')).toHaveCount(0);
@@ -40,6 +40,22 @@ test.describe('blog.txid.uk', () => {
     const href = await skip.getAttribute('href');
     expect(href).toBeTruthy();
     await expect(page.locator(href!)).toHaveCount(1);
+  });
+
+  test('카테고리 줄과 글 목록이 있고 글이 열린다', async ({ page }) => {
+    await page.goto(BASE + '/');
+    await expect(page.locator('header .cat-nav a')).not.toHaveCount(0);
+    const first = page.locator('.card a').first();
+    await expect(first).toBeVisible();
+    const href = await first.getAttribute('href');
+    const r = await page.goto(BASE + href!);
+    expect(r!.status()).toBeLessThan(400);
+    await expect(page.locator('article h1')).toBeVisible();
+  });
+
+  test('검색 색인이 서고 검색이 결과를 낸다', async ({ page }) => {
+    await page.goto(BASE + '/search/?q=MSDS');
+    await expect(page.locator('#results li').first()).toBeVisible();
   });
 
   test('RSS 가 선다', async ({ request }) => {
