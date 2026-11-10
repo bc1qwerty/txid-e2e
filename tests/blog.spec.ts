@@ -59,6 +59,19 @@ test.describe('blog.txid.uk', () => {
     await expect(page.locator('#results li').first()).toBeVisible();
   });
 
+  // 공개 예정 글은 로그인한 사람만 본다(2026-11-10). 페이지는 정적 빌드라 dist 에 그대로 있고 막는 곳은
+  // apps/blog/functions/_middleware.js 하나다 — _routes.json 에서 경로가 빠지면 그대로 공개된다.
+  test('공개 예정은 비로그인에게 닫혀 있다', async ({ request }) => {
+    const r = await request.get(BASE + '/upcoming/', { maxRedirects: 0 });
+    expect(r.status()).toBe(401);
+    const html = await r.text();
+    expect(html).toContain('로그인이 필요합니다');
+    expect(html).not.toContain('/members/q-');
+    expect(r.headers()['cache-control']).toContain('no-store');
+    const idx = await (await request.get(BASE + '/search-index.json')).text();
+    expect(idx).not.toContain('/members/');
+  });
+
   test('RSS 가 선다', async ({ request }) => {
     const r = await request.get(BASE + '/rss.xml');
     expect(r.status()).toBeLessThan(400);
