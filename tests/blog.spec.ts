@@ -17,8 +17,8 @@ test.describe('blog.txid.uk', () => {
 
   test('공용 헤더가 있고 언어 고르개는 없다', async ({ page }) => {
     await page.goto(BASE + '/');
-    // 로고 자리에 사이트 이름(blog.txid.uk)을 둔다 — 예전 «txid.uk / Blog» 의 logo-sub 는 없앴다.
-    await expect(page.locator('header .logo')).toHaveText('blog.txid.uk');
+    // 로고 자리에 블로그 제목을 둔다(👤 2026-11-10) — 예전 «txid.uk / Blog» 의 logo-sub 는 없앴다.
+    await expect(page.locator('header .logo')).toHaveText('Toward Personal Liberation');
     // 한국어 한 벌짜리 사이트다 — 고르개가 보이면 없는 번역을 약속하는 셈이다.
     await expect(page.locator('.lang-dropdown')).toHaveCount(0);
     await expect(page.locator('#hamburger-panel .settings-lang-row')).toHaveCount(0);
