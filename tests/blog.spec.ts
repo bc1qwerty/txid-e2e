@@ -45,7 +45,8 @@ test.describe('blog.txid.uk', () => {
   test('카테고리 줄과 글 목록이 있고 글이 열린다', async ({ page }) => {
     await page.goto(BASE + '/');
     await expect(page.locator('header .cat-nav a')).not.toHaveCount(0);
-    const first = page.locator('.card a').first();
+    // 홈은 log.txid.uk 처럼 카테고리 상자에 제목만 나열한다 — 모양이 아니라 «글로 가는 링크»를 고른다.
+    const first = page.locator('main a[href^="/post/"]').first();
     await expect(first).toBeVisible();
     const href = await first.getAttribute('href');
     const r = await page.goto(BASE + href!);
