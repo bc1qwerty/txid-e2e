@@ -70,6 +70,8 @@ test.describe('blog.txid.uk', () => {
     expect(r.headers()['cache-control']).toContain('no-store');
     const idx = await (await request.get(BASE + '/search-index.json')).text();
     expect(idx).not.toContain('/members/');
+    // 공개 예정 글의 검색 색인도 같은 문 뒤에 있다.
+    expect((await request.get(BASE + '/members/search-index.json', { maxRedirects: 0 })).status()).toBe(401);
   });
 
   test('RSS 가 선다', async ({ request }) => {
