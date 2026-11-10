@@ -72,6 +72,10 @@ test.describe('blog.txid.uk', () => {
     expect(idx).not.toContain('/members/');
     // 공개 예정 글의 검색 색인도 같은 문 뒤에 있다.
     expect((await request.get(BASE + '/members/search-index.json', { maxRedirects: 0 })).status()).toBe(401);
+    // 🔴 인코딩 우회(2026-11-10 실측: /%6Dembers/… 가 함수를 건너뛰고 200 이었다). 경로 규칙만 넓히면 다시 샌다.
+    for (const p of ['/%6Dembers/search-index.json', '/%75pcoming/', '/upcoming%2F']) {
+      expect((await request.get(BASE + p, { maxRedirects: 0 })).status(), p).toBe(401);
+    }
   });
 
   test('RSS 가 선다', async ({ request }) => {
