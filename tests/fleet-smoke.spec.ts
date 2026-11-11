@@ -9,7 +9,7 @@ const SITES: Array<[url: string, marker: string]> = [
   ['https://ghs.txid.uk/', 'Transport Label Generator'],
   ['https://dash.txid.uk/', 'Dashboard | txid.uk'],
   ['https://txt.txid.uk/', 'text-only mirror'],
-  ['https://blog.txid.uk/', 'txid.uk 블로그'],
+  ['https://blog.txid.uk/', 'Toward Personal Liberation'],  // 2026-11-10 블로그 제목 변경
   // map 은 2026-08-21 은퇴 때 감시에서 빠졌고 2026-09-23 재가동 때 돌아오지 않았다(2026-09-28 복귀).
   ['https://map.txid.uk/', 'Equal Earth'],
 ];
