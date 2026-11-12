@@ -159,7 +159,9 @@ test.describe('tx.txid.uk - Transaction Tools', () => {
 
     expect(errs, 'JS 오류').toEqual([]);
     expect(text).not.toMatch(/undefined|NaN/);
-    expect(text).toContain(`${tx.size} bytes`);
+    // 크기는 «전체 B / 가상 vB · weight WU»(2026-11-12 부터). vB 는 BIP 141 대로 weight/4 올림.
+    expect(text).toContain(`${tx.size} B / ${Math.ceil(tx.weight / 4)} vB · ${tx.weight} WU`);
+    expect(text).toContain(`Locktime: ${tx.locktime}`);
     expect(text).toContain(`(${tx.vin.length}`);
     expect(text).toContain(`(${tx.vout.length}`);
     expect(text).toContain(`${(totalOut / 1e8).toFixed(8)} BTC`);
