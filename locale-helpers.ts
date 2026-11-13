@@ -1,4 +1,4 @@
-import { expect, type Page } from '@playwright/test';
+import { expect, type Page, type Request } from '@playwright/test';
 
 /**
  * 로컬라이즈된 URL 은 **처음 온 방문자에게** 그 로케일을 줘야 한다.
@@ -23,13 +23,28 @@ export async function expectLocaleLanding(page: Page, base: string, route: strin
   //   보장하지 않는다). 대신 load(= defer 스크립트까지 실행) 뒤 **안정 구간** 동안 주소가 그대로인지 본다.
   //   튕기는 스크립트는 load 전에 location 을 바꾸므로 이동은 그 구간 안에 드러난다.
   //   이 방식이 실제로 튕김을 잡는지는 tests/helpers-selftest.spec.ts 가 가짜 페이지로 증명한다.
-  await page.goto(`${base}${route}`);
-  const bounced = await page
-    .waitForURL((u) => u.pathname !== route, { timeout: SETTLE_MS })
-    .then(() => true, () => false);
+  // 주 프레임이 다른 경로로 떠나려는 **요청**도 본다. 튕긴 곳의 응답이 느리면 구간이 끝날 때까지 주소도
+  // lang 도 옛 문서 그대로라, 주소만 봐서는 «안 튕겼다» 로 읽힌다.
+  const left: string[] = [];
+  const onRequest = (r: Request) => {
+    if (!r.isNavigationRequest() || r.frame() !== page.mainFrame()) return;
+    const path = new URL(r.url()).pathname;
+    if (path !== route) left.push(path);
+  };
+  page.on('request', onRequest);
+  try {
+    await page.goto(`${base}${route}`);
+    // waitUntil 'commit': 튕긴 곳의 문서가 다 뜨기를 기다리지 않는다.
+    await page
+      .waitForURL((u) => u.pathname !== route, { timeout: SETTLE_MS, waitUntil: 'commit' })
+      .catch(() => { /* 구간 동안 그대로였다 — 정상 */ });
+  } finally {
+    page.off('request', onRequest);
+  }
 
-  // 스크립트가 돈 **뒤**의 자리와 언어를 본다.
-  expect(bounced ? new URL(page.url()).pathname : route, '다른 로케일로 튕겼다').toBe(route);
+  // 스크립트가 돈 **뒤**의 자리와 언어를 본다. 결과와 무관하게 지금 주소를 단언한다.
+  expect(left, '다른 로케일로 튕겼다(이동 요청)').toEqual([]);
+  expect(new URL(page.url()).pathname, '다른 로케일로 튕겼다').toBe(route);
   await expect(page.locator('html')).toHaveAttribute('lang', want);
 
   // 번역 요소가 실제로 그 언어를 들고 있는지. 「틀은 ko 인데 내용은 en」을 잡는다.
