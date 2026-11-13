@@ -54,6 +54,8 @@ jobs:
       # refresh pass (stale 2026-03 specs updated to current site reality,
       # macro.spec.ts removed — site consolidated, NXDOMAIN).
       # map.spec.ts and portfolio.spec.ts removed 2026-08-21 — both sites retired.
+      - name: Typecheck specs
+        run: npm run typecheck
       - name: Run E2E tests
         run: npx playwright test
       - name: Upload report on failure
