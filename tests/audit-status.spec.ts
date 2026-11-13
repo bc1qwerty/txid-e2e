@@ -2,7 +2,6 @@ import { test, expect } from "../fixtures";
 
 test("status home renders hero + grid", async ({ page }) => {
   await page.goto("https://status.txid.uk/");
-  await page.waitForLoadState("networkidle");
   await expect(page.locator(".hero h1")).toBeVisible();
   const cards = page.locator(".site-card");
   await expect(cards.first()).toBeVisible();
@@ -24,8 +23,9 @@ test("incidents page", async ({ page }) => {
 });
 
 test("dev.txid.uk loads", async ({ page }) => {
-  await page.goto("https://dev.txid.uk/");
-  await expect(page.locator("body")).toBeVisible();
+  const res = await page.goto("https://dev.txid.uk/");
+  expect(res?.status()).toBe(200);
+  await expect(page.locator("h1").first()).toBeVisible();
 });
 
 test("dev debugger page loads", async ({ page }) => {

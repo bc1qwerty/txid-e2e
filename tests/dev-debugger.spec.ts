@@ -51,8 +51,7 @@ test.describe('dev.txid.uk - Script Debugger', () => {
     // Click next step
     await page.getByRole('button', { name: '다음 단계' }).click();
     // Step counter advances
-    const counter = await page.locator('.step-controls span').textContent();
-    expect(counter).toMatch(/2 \/ \d+/);
+    await expect(page.locator('.step-controls span')).toHaveText(/2 \/ \d+/);
   });
 
   // 2026-11-12 부터 언어별 경로다. 옛 주소(한국어였다)는 한국어 판으로 301.

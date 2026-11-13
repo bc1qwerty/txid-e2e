@@ -23,7 +23,6 @@ test.describe('tx.txid.uk - Transaction Tools', () => {
     const tabCount = await tabs.count();
     for (let i = 0; i < Math.min(tabCount, 3); i++) {
       await tabs.nth(i).click();
-      await page.waitForTimeout(300);
 
       await expect(tabs.nth(i)).toHaveClass(/active/);
       await expect(tabs.nth(i)).toHaveAttribute('aria-selected', 'true');
@@ -50,7 +49,10 @@ test.describe('tx.txid.uk - Transaction Tools', () => {
   test('조회 결과의 vsize·수수료율이 API 와 맞는가', async ({ page, request }) => {
     const recentRes = await request.get('https://mempool.space/api/mempool/recent').catch(() => null);
     test.skip(!recentRes || !recentRes.ok(), 'mempool.space 에 닿지 않는다');
-    const txid = (await recentRes!.json())[0].txid as string;
+    // 200 인데 빈 목록·비 JSON(앞단 챌린지)이면 그것도 남의 장애다.
+    const recent = await recentRes!.json().catch(() => null);
+    test.skip(!Array.isArray(recent) || !recent[0]?.txid, 'mempool.space 가 목록을 주지 않는다');
+    const txid = recent[0].txid as string;
     const txRes = await request.get(`https://mempool.space/api/tx/${txid}`).catch(() => null);
     test.skip(!txRes || !txRes.ok(), 'mempool.space 에 닿지 않는다');
     const tx = await txRes!.json();
@@ -135,7 +137,9 @@ test.describe('tx.txid.uk - Transaction Tools', () => {
     test.skip(!recentRes || !recentRes.ok(), 'mempool.space 에 닿지 않는다');
     let txid = '';
     let tx: any = null;
-    for (const r of (await recentRes!.json()).slice(0, 12)) {
+    const recentList = await recentRes!.json().catch(() => null);
+    test.skip(!Array.isArray(recentList), 'mempool.space 가 목록을 주지 않는다');
+    for (const r of recentList.slice(0, 12)) {
       const res = await request.get(`https://mempool.space/api/tx/${r.txid}`).catch(() => null);
       if (!res || !res.ok()) continue;
       const cand = await res.json();

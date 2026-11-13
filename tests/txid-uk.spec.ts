@@ -46,7 +46,7 @@ test.describe('txid.uk - Homepage', () => {
     const hasCSP = !!headers['content-security-policy'] || !!headers['content-security-policy-report-only'];
     const hasHSTS = !!headers['strict-transport-security'];
 
-    // At least HSTS should be present via Cloudflare
-    expect(hasHSTS || hasCSP).toBeTruthy();
+    expect(hasHSTS, 'HSTS').toBeTruthy();
+    expect(hasCSP, 'CSP').toBeTruthy();
   });
 });

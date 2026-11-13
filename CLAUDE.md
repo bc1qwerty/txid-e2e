@@ -44,4 +44,4 @@ bash run-tests.sh     # Run via shell script
 - Consumed remotely: archive's post-deploy smoke job checks out this repo and runs the deployed sites' specs
 
 ## Status
-- Active. 14 spec files covering 20 live txid.uk hosts.
+- Active. 15 spec files covering 20 live txid.uk hosts.
