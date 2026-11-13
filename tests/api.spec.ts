@@ -36,10 +36,10 @@ test.describe('api.txid.uk - API Server', () => {
 
   test('auth challenge endpoint responds', async ({ request }) => {
     const response = await request.get(`${BASE}/auth/challenge`);
-    // Should return a response (200 or 400 with body, not 404/500)
-    expect(response.status()).toBeLessThan(500);
+    expect(response.status()).toBe(200);
 
-    const body = await response.text();
-    expect(body.length).toBeGreaterThan(0);
+    const body = await response.json();
+    expect(body.k1).toMatch(/^[0-9a-f]{64}$/);
+    expect(String(body.lnurl)).toMatch(/^lnurl1/i);
   });
 });

@@ -32,9 +32,10 @@ test.describe('txid.uk - Homepage', () => {
 
   test('language switch works', async ({ page }) => {
     await page.goto(BASE);
-    const langLinks = page.locator('a[href*="/ko"], a[href*="/en"], a[href*="/ja"], [class*="lang"] a, [class*="language"] a');
-    const count = await langLinks.count();
-    expect(count).toBeGreaterThanOrEqual(1);
+    await expect(page.locator('html')).toHaveAttribute('lang', 'en');
+    await page.locator('#lang-btn').click();
+    await page.locator('#lang-menu button[data-lang="ko"]').click();
+    await expect(page.locator('html')).toHaveAttribute('lang', 'ko');
   });
 
   test('security headers present', async ({ page }) => {

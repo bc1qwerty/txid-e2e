@@ -13,40 +13,27 @@ test.describe('sim.txid.uk - Bitcoin Simulator', () => {
     expect(count).toBeGreaterThanOrEqual(6);
   });
 
-  test('hash module link works', async ({ page }) => {
-    const response = await page.goto(`${BASE}/en/hash/`);
-    expect(response!.status()).toBeLessThan(400);
-    await expect(page.locator('body')).toContainText(/hash/i);
-  });
-
-  test('mining module link works', async ({ page }) => {
-    const response = await page.goto(`${BASE}/en/mining/`);
-    expect(response!.status()).toBeLessThan(400);
-    await expect(page.locator('body')).toContainText(/min/i);
-  });
-
-  test('keys module link works', async ({ page }) => {
-    const response = await page.goto(`${BASE}/en/keys/`);
-    expect(response!.status()).toBeLessThan(400);
-  });
-
-  test('transaction builder module link works', async ({ page }) => {
+  // 모듈마다 상태 코드 + 그 모듈에만 있는 요소 + JS 오류 0 을 본다.
+  // (예전엔 `/hash/i` 같은 글자만 봤는데 그건 내비에 늘 있어서 404 틀에서도 통과했다.)
+  const MODULES: Array<[path: string, unique: string]> = [
+    ['hash', '#curr-hash'],
+    ['mining', '#mine-difficulty'],
+    ['keys', '#generate-btn'],
     // Old /en/transaction/ route was renamed to /en/tx-builder/
-    const response = await page.goto(`${BASE}/en/tx-builder/`);
-    expect(response!.status()).toBeLessThan(400);
-    await expect(page).toHaveTitle(/transaction builder/i);
-  });
-
-  test('merkle module link works', async ({ page }) => {
-    const response = await page.goto(`${BASE}/en/merkle/`);
-    expect(response!.status()).toBeLessThan(400);
-    await expect(page).toHaveTitle(/merkle/i);
-  });
-
-  test('blockchain module link works', async ({ page }) => {
-    const response = await page.goto(`${BASE}/en/blockchain/`);
-    expect(response!.status()).toBeLessThan(400);
-  });
+    ['tx-builder', '#utxo-pool'],
+    ['merkle', '#merkle-build-btn'],
+    ['blockchain', '#chain-container'],
+  ];
+  for (const [path, unique] of MODULES) {
+    test(`${path} module loads`, async ({ page }) => {
+      const errs: string[] = [];
+      page.on('pageerror', (e) => errs.push(e.message.slice(0, 100)));
+      const response = await page.goto(`${BASE}/en/${path}/`);
+      expect(response!.status()).toBe(200);
+      await expect(page.locator(unique)).toBeVisible();
+      expect(errs, 'JS 오류').toEqual([]);
+    });
+  }
 
   // 🔑 로케일 착지 — 공통 단언은 ../locale-helpers.ts 에 있다(원래 txid-web 의
   //    check-locale-landing.mjs, 2026-10-02 에 배포된 사이트를 보는 이쪽으로 옮겼다).
@@ -68,7 +55,7 @@ test.describe('sim.txid.uk - Bitcoin Simulator', () => {
   test('채굴 슬라이더가 라벨대로의 난이도를 주는가', async ({ page }) => {
     const errs: string[] = [];
     page.on('pageerror', (e) => errs.push(e.message.slice(0, 100)));
-    await page.goto('https://sim.txid.uk/ko/mining/', { waitUntil: 'networkidle' });
+    await page.goto('https://sim.txid.uk/ko/mining/');
 
     const { min, max } = await page.locator('#mine-difficulty').evaluate((el) => ({
       min: Number((el as HTMLInputElement).min || 1),

@@ -15,12 +15,21 @@ import { expect, type Page } from '@playwright/test';
  *    이쪽으로 옮겼다. 옮기자마자 apps·sim·id 의 햄버거 패널 라벨 둘이 ko·ja 에서
  *    영어로 남아 있던 것을 잡았다(archive 5e968fc 로 수리).
  */
+const SETTLE_MS = 2000;
+
 export async function expectLocaleLanding(page: Page, base: string, route: string) {
   const want = route.split('/')[1];
-  await page.goto(`${base}${route}`, { waitUntil: 'networkidle' });
+  // ⚠ networkidle 은 쓰지 않는다(폴링·WS 가 붙은 사이트에서 타임아웃이 나고, «스크립트가 돈 뒤» 도
+  //   보장하지 않는다). 대신 load(= defer 스크립트까지 실행) 뒤 **안정 구간** 동안 주소가 그대로인지 본다.
+  //   튕기는 스크립트는 load 전에 location 을 바꾸므로 이동은 그 구간 안에 드러난다.
+  //   이 방식이 실제로 튕김을 잡는지는 tests/helpers-selftest.spec.ts 가 가짜 페이지로 증명한다.
+  await page.goto(`${base}${route}`);
+  const bounced = await page
+    .waitForURL((u) => u.pathname !== route, { timeout: SETTLE_MS })
+    .then(() => true, () => false);
 
   // 스크립트가 돈 **뒤**의 자리와 언어를 본다.
-  expect(new URL(page.url()).pathname, '다른 로케일로 튕겼다').toBe(route);
+  expect(bounced ? new URL(page.url()).pathname : route, '다른 로케일로 튕겼다').toBe(route);
   await expect(page.locator('html')).toHaveAttribute('lang', want);
 
   // 번역 요소가 실제로 그 언어를 들고 있는지. 「틀은 ko 인데 내용은 en」을 잡는다.

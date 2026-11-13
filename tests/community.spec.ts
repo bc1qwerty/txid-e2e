@@ -67,6 +67,8 @@ test.describe('community.txid.uk - Community Board (Lightning paywall)', () => {
       has: page.locator('span[aria-label*="Paywalled"]'),
     });
     const lockedCount = await lockedArticles.count();
+    // 건너뜀은 초록이라 «페이월 검사가 영영 안 돈다» 를 아무도 모른다 — CI 에 경고로 남긴다
+    // (건너뛴 테스트 전부는 flaky-reporter.ts 가 한 번 더 모아 찍는다).
     test.skip(lockedCount === 0, 'no paywalled post in public list');
 
     const badge = lockedArticles.first().locator('span[aria-label*="Paywalled"]');
