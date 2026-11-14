@@ -7,7 +7,9 @@ test.describe('id.txid.uk - Identity Service', () => {
   test('page loads', async ({ page }) => {
     const response = await page.goto(BASE);
     expect(response!.status()).toBe(200);
-    await expect(page).toHaveTitle(/.+/);
+    await expect(page).toHaveTitle(/NIP-05.*txid\.uk/);
+    await expect(page.locator('html')).toHaveAttribute('lang', 'en');
+    await expect(page.locator('h1').first()).toBeVisible();
   });
 
   test('NIP-05 registration form exists', async ({ page }) => {

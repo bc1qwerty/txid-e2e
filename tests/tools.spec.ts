@@ -44,17 +44,26 @@ test.describe('tools.txid.uk - Bitcoin Tools', () => {
 
   test('language route /en/ works', async ({ page }) => {
     const response = await page.goto(`${BASE}/en/`);
-    expect(response!.status()).toBeLessThan(400);
+    expect(response!.status()).toBe(200);
+    // 상태 코드만 보면 다른 언어 판이나 빈 틀이 나와도 통과한다 — 언어와 도구 목록까지.
+    await expect(page.locator('html')).toHaveAttribute('lang', 'en');
+    expect(await page.locator('a.tool-dir-card').count()).toBeGreaterThanOrEqual(5);
   });
 
   test('language route /ko/ works', async ({ page }) => {
     const response = await page.goto(`${BASE}/ko/`);
-    expect(response!.status()).toBeLessThan(400);
+    expect(response!.status()).toBe(200);
+    // 상태 코드만 보면 다른 언어 판이나 빈 틀이 나와도 통과한다 — 언어와 도구 목록까지.
+    await expect(page.locator('html')).toHaveAttribute('lang', 'ko');
+    expect(await page.locator('a.tool-dir-card').count()).toBeGreaterThanOrEqual(5);
   });
 
   test('language route /ja/ works', async ({ page }) => {
     const response = await page.goto(`${BASE}/ja/`);
-    expect(response!.status()).toBeLessThan(400);
+    expect(response!.status()).toBe(200);
+    // 상태 코드만 보면 다른 언어 판이나 빈 틀이 나와도 통과한다 — 언어와 도구 목록까지.
+    await expect(page.locator('html')).toHaveAttribute('lang', 'ja');
+    expect(await page.locator('a.tool-dir-card').count()).toBeGreaterThanOrEqual(5);
   });
 
   // 🔑 로케일 착지 — 공통 단언은 ../locale-helpers.ts 에 있다(원래 txid-web 의

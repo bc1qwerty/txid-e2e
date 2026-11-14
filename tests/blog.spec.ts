@@ -11,8 +11,10 @@ const BASE = 'https://blog.txid.uk';
 test.describe('blog.txid.uk', () => {
   test('page loads', async ({ page }) => {
     const response = await page.goto(BASE + '/');
-    expect(response!.status()).toBeLessThan(400);
-    await expect(page).toHaveTitle(/.+/);
+    expect(response!.status()).toBe(200);
+    await expect(page).toHaveTitle(/blog\.txid\.uk/);
+    // 홈의 본체는 글 목록이다 — 틀만 서고 목록이 비면 여기서 걸린다.
+    await expect(page.locator('main a[href^="/post/"]').first()).toBeVisible();
   });
 
   test('공용 헤더가 있고 언어 고르개는 없다', async ({ page }) => {
@@ -80,7 +82,10 @@ test.describe('blog.txid.uk', () => {
 
   test('RSS 가 선다', async ({ request }) => {
     const r = await request.get(BASE + '/rss.xml');
-    expect(r.status()).toBeLessThan(400);
+    expect(r.status()).toBe(200);
+    const xml = await r.text();
+    expect(xml).toMatch(/^<\?xml[^>]*>\s*<rss /);
+    expect(xml).toContain('<item>');
   });
 
   // 공개 글이 0편이면 사이트 전체가 noindex 이고 사이트맵이 없다(2026-10-10). 셋은 같은
@@ -94,7 +99,8 @@ test.describe('blog.txid.uk', () => {
     if (hasSitemap) {
       expect(meta).not.toContain('noindex');
       const r = await request.get(BASE + '/sitemap-index.xml');
-      expect(r.status()).toBeLessThan(400);
+      expect(r.status()).toBe(200);
+      expect(await r.text()).toContain('<sitemapindex');
     } else {
       expect(meta).toContain('noindex');
     }
@@ -102,6 +108,7 @@ test.describe('blog.txid.uk', () => {
 
   test('개인정보처리방침이 선다', async ({ page }) => {
     const r = await page.goto(BASE + '/privacy/');
-    expect(r!.status()).toBeLessThan(400);
+    expect(r!.status()).toBe(200);
+    await expect(page.locator('main h1, article h1').first()).toHaveText(/개인정보처리방침/);
   });
 });
