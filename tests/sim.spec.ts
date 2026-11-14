@@ -15,22 +15,56 @@ test.describe('sim.txid.uk - Bitcoin Simulator', () => {
 
   // 모듈마다 상태 코드 + 그 모듈에만 있는 요소 + JS 오류 0 을 본다.
   // (예전엔 `/hash/i` 같은 글자만 봤는데 그건 내비에 늘 있어서 404 틀에서도 통과했다.)
-  const MODULES: Array<[path: string, unique: string]> = [
-    ['hash', '#curr-hash'],
-    ['mining', '#mine-difficulty'],
-    ['keys', '#generate-btn'],
+  // 🔴 요소가 보이는지만 보면 모듈 스크립트가 통째로 404 여도 통과한다(서버가 그린 틀이라서).
+  //    모듈마다 **스크립트가 해야만 일어나는 일** 하나를 본다.
+  type Act = (page: import('@playwright/test').Page) => Promise<void>;
+  const HEX64 = /^[0-9a-f]{64}$/;
+  const MODULES: Array<[path: string, unique: string, act: Act]> = [
+    ['hash', '#curr-hash', async (page) => {
+      await page.locator('#hash-input').fill('abc');
+      // SHA-256("abc")
+      await expect(page.locator('#hash-output')).toContainText('ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad');
+    }],
+    ['mining', '#mine-difficulty', async (page) => {
+      const hash = page.locator('#mine-hash');
+      await expect(hash).toHaveText(HEX64);
+      const before = (await hash.innerText()).trim();
+      await page.locator('#nonce-inc').click();
+      await expect(hash).not.toHaveText(before);
+      await expect(hash).toHaveText(HEX64);
+    }],
+    ['keys', '#generate-btn', async (page) => {
+      await page.locator('#generate-btn').click();
+      await expect(page.locator('#addr-p2wpkh')).toContainText(/bc1q[0-9a-z]{38}/);
+      await expect(page.locator('#addr-p2tr')).toContainText(/bc1p[0-9a-z]{58}/);
+    }],
     // Old /en/transaction/ route was renamed to /en/tx-builder/
-    ['tx-builder', '#utxo-pool'],
-    ['merkle', '#merkle-build-btn'],
-    ['blockchain', '#chain-container'],
+    ['tx-builder', '#utxo-pool', async (page) => {
+      const utxo = page.locator('#utxo-pool .utxo-item').first();
+      await utxo.click();
+      await expect(utxo).toHaveAttribute('aria-pressed', 'true');
+      await expect(page.locator('#total-in')).toContainText('0.5');
+    }],
+    ['merkle', '#merkle-build-btn', async (page) => {
+      await page.locator('#merkle-build-btn').click();
+      await expect(page.locator('#merkle-root-display')).toHaveText(HEX64);
+    }],
+    ['blockchain', '#chain-container', async (page) => {
+      const cards = page.locator('#chain-container .block-card');
+      await expect(cards).not.toHaveCount(0);
+      const before = await cards.count();
+      await page.locator('#add-block-btn').click();
+      await expect(cards).toHaveCount(before + 1);
+    }],
   ];
-  for (const [path, unique] of MODULES) {
+  for (const [path, unique, act] of MODULES) {
     test(`${path} module loads`, async ({ page }) => {
       const errs: string[] = [];
       page.on('pageerror', (e) => errs.push(e.message.slice(0, 100)));
       const response = await page.goto(`${BASE}/en/${path}/`);
       expect(response!.status()).toBe(200);
       await expect(page.locator(unique)).toBeVisible();
+      await act(page);
       expect(errs, 'JS 오류').toEqual([]);
     });
   }

@@ -17,6 +17,34 @@ test.describe('txid.uk - Homepage', () => {
     await expect(heroSearch).toHaveAttribute('placeholder', /search/i);
   });
 
+  // 헤더의 로그인 단추는 api.txid.uk 의 SDK 가 그린다 — SDK 가 404 면 전 사이트에서 로그인이 사라진다.
+  test.describe('login surface', () => {
+    test.use({ liveAuth: true });
+    test('header shows the login button drawn by the auth SDK', async ({ page }) => {
+      await page.goto(BASE);
+      await expect(page.locator('.txid-auth-btn:visible').first()).toBeVisible({ timeout: 15_000 });
+    });
+  });
+
+  // 사이트 간 검색(Ctrl+Shift+K). 스크립트가 빠지면 단축키가 조용히 아무 일도 안 한다.
+  test('platform search opens and finds a tool', async ({ page }) => {
+    await page.goto(BASE);
+    await page.waitForLoadState('load');
+    await page.keyboard.press('Control+Shift+K');
+    const input = page.locator('#ps-input');
+    await expect(input).toBeVisible({ timeout: 15_000 });
+    await input.fill('address');
+    await expect(page.locator('#ps-results a').first()).toBeVisible();
+  });
+
+  test('footer and canonical are present', async ({ page }) => {
+    const res = await page.goto(BASE);
+    expect(await res!.text()).toMatch(/<link[^>]*rel="canonical"[^>]*href="https:\/\/txid\.uk\/"/);
+    const footer = page.locator('footer').first();
+    await expect(footer).toBeVisible();
+    expect(await footer.locator('a[href]').count()).toBeGreaterThanOrEqual(3);
+  });
+
   test('theme toggle works', async ({ page }) => {
     await page.goto(BASE);
     // #theme-btn is the visible desktop toggle; #hamburger-theme-btn is hidden
@@ -44,7 +72,8 @@ test.describe('txid.uk - Homepage', () => {
     const headers = response!.headers();
 
     // Check for security headers (Cloudflare may set these)
-    const hasCSP = !!headers['content-security-policy'] || !!headers['content-security-policy-report-only'];
+    // report-only 만 남으면 아무것도 막지 않는다 — 강제 헤더여야 한다.
+    const hasCSP = !!headers['content-security-policy'];
     const hasHSTS = !!headers['strict-transport-security'];
 
     expect(hasHSTS, 'HSTS').toBeTruthy();

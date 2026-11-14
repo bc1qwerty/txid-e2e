@@ -71,7 +71,7 @@ test.describe('tx.txid.uk - Transaction Tools', () => {
     });
 
     await page.goto(BASE);
-    await page.locator('#tab-lookup').click();
+    await page.locator('#tab-lookup').click({ timeout: 15_000 });
     await page.locator('#txid-input').fill(txid);
     await page.locator('#btn-lookup').click();
 
@@ -86,8 +86,11 @@ test.describe('tx.txid.uk - Transaction Tools', () => {
       .toBe(true);
 
     const gaveUp = (await result.locator('.result-err').count()) > 0;
-    const upstreamBad =
-      apiStatus === null || apiStatus >= 400 || !/json/i.test(apiType);
+    // 🔴 응답이 **아예 없는** 경우는 건너뛰지 않는다. 방금 node 쪽에서는 같은 주소가 200 이었으므로,
+    //    브라우저만 못 받았다면 우리 CSP(connect-src)가 막은 것이다 — 그걸 «남의 장애» 로 넘기면
+    //    우리 결함이 초록으로 숨는다.
+    expect(gaveUp && apiStatus === null, '브라우저가 mempool.space 에 요청을 못 보냈다(CSP connect-src?)').toBe(false);
+    const upstreamBad = apiStatus !== null && (apiStatus >= 400 || !/json/i.test(apiType));
     test.skip(gaveUp && upstreamBad, `페이지가 mempool.space 에서 답을 못 받았다 (HTTP ${apiStatus} ${apiType})`);
 
     const text = (await result.innerText()).replace(/\s+/g, ' ');
@@ -95,6 +98,10 @@ test.describe('tx.txid.uk - Transaction Tools', () => {
     expect(text).toContain(`${vsize} vB`);
     expect(text).toContain(`${rate} sat/vB`);
     expect(text).toContain(`${tx.fee.toLocaleString()} sat`);
+    // 출력 합계와 확인 상태 표시까지 — 파생값 셋만 보면 금액이 틀려도 통과한다.
+    const totalOut = tx.vout.reduce((acc: number, o: any) => acc + o.value, 0);
+    expect(text).toContain(`${(totalOut / 1e8).toFixed(8)} BTC`);
+    await expect(result.locator('.badge')).toHaveCount(1);
   });
 
   test('ARIA attributes present (role="tab", aria-selected)', async ({ page }) => {
@@ -154,7 +161,8 @@ test.describe('tx.txid.uk - Transaction Tools', () => {
     const errs: string[] = [];
     page.on('pageerror', (e) => errs.push(e.message.slice(0, 100)));
     await page.goto(BASE);
-    await page.locator('#tab-decode').click();
+    // 페이지 스크립트가 죽으면 아래 대기가 테스트 타임아웃(60초)까지 간다 — 원인이 보이게 짧게.
+    await page.locator('#tab-decode').click({ timeout: 15_000 });
     await page.locator('#decode-tx').fill(hex);
     await page.locator('#btn-decode-only').click();
     const result = page.locator('#decode-result');

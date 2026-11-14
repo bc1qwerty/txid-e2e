@@ -7,11 +7,16 @@
 End-to-end test suite for all txid.uk subdomains. Uses Playwright to verify functionality across the entire platform.
 
 ## Tech Stack
-- **Testing**: Playwright (^1.49.0)
+- **Testing**: Playwright (^1.64.1)
 - **Config**: playwright.config.ts
 
 ## Key Files
-- `fixtures.ts` -- shared test/expect export every spec imports; disables umami analytics on every page (suite hits production directly)
+- `fixtures.ts` -- shared test/expect export every spec imports (suite hits production directly):
+  - disables umami, aborts `api.txid.uk/vitals`
+  - stubs `api.txid.uk/auth/me` (logged-out answer) and fetches `txid-auth.js/.css` once per worker — a full run used to send ~330 requests to api.txid.uk, and three runs inside 15 minutes hit its global limit. Specs that test the login surface opt out with `test.use({ liveAuth: true })`
+  - `page` fixture fails the test on any uncaught JS exception or 4xx/5xx script/stylesheet from a `*.txid.uk` host (`assetGuard: false` to opt out)
+- `locale-helpers.ts` -- `expectLocaleLanding`: no bounce to another locale, `<html lang>`, and enough native-script characters in the served body
+- `flaky-reporter.ts` -- warns when a test only passed on retry
 - `tests/` -- Test specs per subdomain:
   - `txid-uk.spec.ts` -- Main site
   - `learn.spec.ts` -- Learn subdomain
@@ -27,9 +32,18 @@ End-to-end test suite for all txid.uk subdomains. Uses Playwright to verify func
   - `audit-status.spec.ts` -- status.txid.uk + dev.txid.uk availability
   - `sweep-regressions.spec.ts` -- request-level locks for the 2026-08/09 full-fleet sweep fixes (www redirect, lokl 404, matrix CSP, ...)
   - `fleet-smoke.spec.ts` -- request-level availability for ghs, dash, txt, blog, map
+  - `blog.spec.ts` -- blog.txid.uk (tistory mirror)
+  - `lokl.spec.ts` -- lokl.txid.uk notes app (autosave)
+  - `helpers-selftest.spec.ts` -- proves `locale-helpers` catches bounces and wrong-language bodies (fake pages, no network)
 - `playwright.config.ts` -- Playwright configuration
 - `run-tests.sh` -- Test runner script
 - Root `*.mjs` debug scripts were removed 2026-09-14 (stale 2026-04 one-offs targeting moved URLs; recover from git history if ever needed)
+
+## Writing specs
+- Count assertions use a floor near the real value (~80%), with the real value in a comment — a floor at half lets half the page vanish.
+- Assert on something only the page's script can produce (a computed value, a state change), not on server-rendered markup alone.
+- For SEO-visible text and `lang`, assert on `response.text()`; hydration can repaint the DOM.
+- Skip only for a third party's outage, and only when the response proves it. No response at all from the browser means our CSP blocked it — that fails.
 
 ## Build & Run
 ```bash

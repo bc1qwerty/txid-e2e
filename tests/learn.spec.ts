@@ -30,6 +30,8 @@ test.describe('learn.txid.uk - Education Site', () => {
     await openHome(page, 'en');
     const nav = page.locator('nav');
     await expect(nav.first()).toBeVisible();
+    // 틀만 남고 링크가 사라져도 nav 는 보인다(실제 12개).
+    expect(await nav.first().locator('a[href]').count()).toBeGreaterThanOrEqual(8);
   });
 
   test('footer links work', async ({ page, request }) => {
@@ -37,11 +39,14 @@ test.describe('learn.txid.uk - Education Site', () => {
     const footer = page.locator('footer');
     await expect(footer).toBeVisible();
 
-    // 첫 내부 링크가 실제로 열리는지까지 본다.
+    // 내부 링크가 **전부** 실제로 열리는지 본다(첫 것만 보면 둘째가 깨져도 통과한다).
     const internal = footer.locator('a[href^="/"]');
     await expect(internal.first()).toBeVisible();
-    const href = await internal.first().getAttribute('href');
-    const res = await request.get(`${BASE}${href}`);
-    expect(res.status(), `footer 링크 ${href}`).toBe(200);
+    const hrefs = [...new Set(await internal.evaluateAll((as) => as.map((a) => a.getAttribute('href') || '')))];
+    expect(hrefs.length).toBeGreaterThanOrEqual(5);
+    for (const href of hrefs) {
+      const res = await request.get(`${BASE}${href}`);
+      expect(res.status(), `footer 링크 ${href}`).toBe(200);
+    }
   });
 });

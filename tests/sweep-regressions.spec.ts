@@ -71,6 +71,45 @@ test.describe('sweep regressions (2026-09)', () => {
     expect(await notFound.text()).toContain('404');
   });
 
+  // apex 만 보던 것을 전 호스트로. 헤더는 호스트마다 다른 곳(_headers, Caddy, 미들웨어)에서 나온다.
+  const HEADER_HOSTS = [
+    'https://txid.uk/', 'https://tools.txid.uk/en/', 'https://tx.txid.uk/en/', 'https://sim.txid.uk/en/',
+    'https://dev.txid.uk/en/', 'https://apps.txid.uk/en/', 'https://id.txid.uk/en/', 'https://blog.txid.uk/',
+    'https://learn.txid.uk/en/', 'https://news.txid.uk/', 'https://community.txid.uk/', 'https://lokl.txid.uk/',
+    'https://status.txid.uk/', 'https://dash.txid.uk/', 'https://ghs.txid.uk/', 'https://txt.txid.uk/',
+    'https://map.txid.uk/', 'https://lib.txid.uk/', 'https://shop.txid.uk/login',
+  ];
+  test('every site sends an enforcing CSP and HSTS', async ({ request }) => {
+    const missing: string[] = [];
+    for (const url of HEADER_HOSTS) {
+      const h = (await request.get(url)).headers();
+      if (!h['content-security-policy']) missing.push(`CSP ${url}`);
+      if (!h['strict-transport-security']) missing.push(`HSTS ${url}`);
+    }
+    expect(missing).toEqual([]);
+  });
+
+  // canonical 이 다른 주소를 가리키거나 hreflang 이 빠지면 색인이 조용히 무너진다.
+  const LOCALIZED = ['tools', 'apps', 'tx', 'sim', 'dev', 'id', 'learn'];
+  test('localized sites declare canonical and hreflang alternates', async ({ request }) => {
+    const bad: string[] = [];
+    for (const site of LOCALIZED) {
+      const url = `https://${site}.txid.uk/en/`;
+      const html = await (await request.get(url)).text();
+      const canon = html.match(/<link[^>]*rel="canonical"[^>]*href="([^"]*)"/)?.[1];
+      if (canon !== url) bad.push(`${site}: canonical ${canon}`);
+      for (const lang of ['en', 'ko', 'ja', 'x-default']) {
+        if (!new RegExp(`hreflang="${lang}"`).test(html)) bad.push(`${site}: hreflang ${lang}`);
+      }
+    }
+    for (const [url, want] of [['https://blog.txid.uk/', 'https://blog.txid.uk/'], ['https://news.txid.uk/', 'https://news.txid.uk']]) {
+      const html = await (await request.get(url)).text();
+      const canon = html.match(/<link[^>]*rel="canonical"[^>]*href="([^"]*)"/)?.[1];
+      if (canon !== want) bad.push(`${url}: canonical ${canon}`);
+    }
+    expect(bad).toEqual([]);
+  });
+
   test('matrix.txid.uk sends a CSP header', async ({ request }) => {
     // VPS Caddy hygiene fix: JSON-only host had no CSP at all.
     const res = await request.get('https://matrix.txid.uk/_matrix/client/versions');

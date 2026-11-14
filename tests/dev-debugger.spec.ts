@@ -13,7 +13,8 @@ async function openDebugger(page: import('@playwright/test').Page, path = '/ko/t
   // Pin the gate to this page's own island. A bare `astro-island:not([ssr])` would match
   // whichever island hydrates first, so adding any second island to the page later would
   // silently disarm the wait.
-  await page.waitForSelector('astro-island[component-export="ScriptDebugger"]:not([ssr])');
+  // 섬 스크립트가 404 면 하이드레이션이 영영 안 끝난다 — 테스트 타임아웃(60초)까지 끌지 않는다.
+  await page.waitForSelector('astro-island[component-export="ScriptDebugger"]:not([ssr])', { timeout: 15_000 });
 }
 
 test.describe('dev.txid.uk - Script Debugger', () => {
@@ -55,11 +56,26 @@ test.describe('dev.txid.uk - Script Debugger', () => {
   });
 
   // 2026-11-12 부터 언어별 경로다. 옛 주소(한국어였다)는 한국어 판으로 301.
-  test('old /tools/script-debugger redirects to the Korean page', async ({ page }) => {
+  test('old /tools/script-debugger redirects to the Korean page', async ({ page, request }) => {
+    // 영구 이동(301)이어야 검색엔진이 주소를 옮긴다.
+    const hop = await request.get(`${BASE}/tools/script-debugger/`, { maxRedirects: 0 });
+    expect(hop.status()).toBe(301);
+    expect(hop.headers()['location']).toMatch(/\/ko\/tools\/script-debugger\/$/);
     const res = await page.goto(`${BASE}/tools/script-debugger/`);
     expect(new URL(page.url()).pathname).toBe('/ko/tools/script-debugger/');
     expect(res?.status()).toBe(200);
   });
+
+  // 🔴 2026-11-14 까지 검색(Pagefind)이 전 페이지에서 뜨지 않았다 — 실패가 console.warn 뿐이라 아무도 몰랐다.
+  for (const lang of ['ko', 'en']) {
+    test(`site search returns results (${lang})`, async ({ page }) => {
+      await page.goto(`${BASE}/${lang}/`);
+      const input = page.locator('#search input.pagefind-ui__search-input');
+      await expect(input).toBeVisible({ timeout: 15_000 });
+      await input.fill('Taproot');
+      await expect(page.locator('#search .pagefind-ui__result').first()).toBeVisible({ timeout: 15_000 });
+    });
+  }
 
   test('English page runs in English and treats false as the empty value', async ({ page }) => {
     await openDebugger(page, '/en/tools/script-debugger/');

@@ -9,10 +9,11 @@ test.describe('tools.txid.uk - Bitcoin Tools', () => {
     // Index page is now a tool directory: each tool is a card with an h2 title
     const cards = page.locator('a.tool-dir-card');
     const count = await cards.count();
-    expect(count).toBeGreaterThanOrEqual(5);
+    // 실제 13개(2026-11).
+    expect(count).toBeGreaterThanOrEqual(10);
     // Section headings present too
     const headings = page.locator('h2.tool-dir-name');
-    expect(await headings.count()).toBeGreaterThanOrEqual(5);
+    expect(await headings.count()).toBeGreaterThanOrEqual(10);
   });
 
   test('Address Validator accepts valid BTC address', async ({ page }) => {
@@ -48,7 +49,7 @@ test.describe('tools.txid.uk - Bitcoin Tools', () => {
     // 상태 코드만 보면 다른 언어 판이나 빈 틀이 나와도 통과한다 — 언어와 도구 목록까지.
     // DOM 의 lang 은 스크립트가 경로를 보고 다시 쓴다 — 틀린 언어 판을 잡으려면 응답 원문을 본다.
     expect(await response!.text()).toMatch(/<html[^>]*\blang="en"/);
-    expect(await page.locator('a.tool-dir-card').count()).toBeGreaterThanOrEqual(5);
+    expect(await page.locator('a.tool-dir-card').count()).toBeGreaterThanOrEqual(10);
   });
 
   test('language route /ko/ works', async ({ page }) => {
@@ -57,7 +58,7 @@ test.describe('tools.txid.uk - Bitcoin Tools', () => {
     // 상태 코드만 보면 다른 언어 판이나 빈 틀이 나와도 통과한다 — 언어와 도구 목록까지.
     // DOM 의 lang 은 스크립트가 경로를 보고 다시 쓴다 — 틀린 언어 판을 잡으려면 응답 원문을 본다.
     expect(await response!.text()).toMatch(/<html[^>]*\blang="ko"/);
-    expect(await page.locator('a.tool-dir-card').count()).toBeGreaterThanOrEqual(5);
+    expect(await page.locator('a.tool-dir-card').count()).toBeGreaterThanOrEqual(10);
   });
 
   test('language route /ja/ works', async ({ page }) => {
@@ -66,7 +67,7 @@ test.describe('tools.txid.uk - Bitcoin Tools', () => {
     // 상태 코드만 보면 다른 언어 판이나 빈 틀이 나와도 통과한다 — 언어와 도구 목록까지.
     // DOM 의 lang 은 스크립트가 경로를 보고 다시 쓴다 — 틀린 언어 판을 잡으려면 응답 원문을 본다.
     expect(await response!.text()).toMatch(/<html[^>]*\blang="ja"/);
-    expect(await page.locator('a.tool-dir-card').count()).toBeGreaterThanOrEqual(5);
+    expect(await page.locator('a.tool-dir-card').count()).toBeGreaterThanOrEqual(10);
   });
 
   // 🔑 로케일 착지 — 공통 단언은 ../locale-helpers.ts 에 있다(원래 txid-web 의

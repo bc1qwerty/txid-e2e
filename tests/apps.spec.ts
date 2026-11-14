@@ -10,7 +10,17 @@ test.describe('apps.txid.uk - App Directory', () => {
 
     const cards = page.locator('a.app-card');
     const count = await cards.count();
-    expect(count).toBeGreaterThanOrEqual(10);
+    // 실제 26~27개(2026-11). 절반이 사라져도 통과하던 하한(10)을 올렸다.
+    expect(count).toBeGreaterThanOrEqual(20);
+
+    // 그림이 전부 404 여도 카드 수는 그대로다 — 보이는 그림이 실제로 풀렸는지 본다.
+    await page.waitForLoadState('load');
+    const broken = await page.evaluate(() =>
+      Array.from(document.images)
+        .filter((i) => i.complete && i.naturalWidth === 0 && !!i.currentSrc)
+        .map((i) => i.currentSrc),
+    );
+    expect(broken, '깨진 그림').toEqual([]);
   });
 
   test('category sections group app cards', async ({ page }) => {
@@ -98,7 +108,7 @@ test.describe('apps.txid.uk - App Directory', () => {
     const detail = [...new Set(
       (await hub.text()).match(/href="(\/en\/[a-z0-9-]+\/)"/g)?.map((m) => m.slice(6, -1)) ?? [],
     )];
-    expect(detail.length, '허브에서 카드를 못 찾았다').toBeGreaterThan(10);
+    expect(detail.length, '허브에서 카드를 못 찾았다').toBeGreaterThanOrEqual(16);
 
     const bad: string[] = [];
     let checked = 0;
@@ -113,7 +123,7 @@ test.describe('apps.txid.uk - App Directory', () => {
       if (res.status() >= 400) { bad.push(`${res.status()} ${href}`); }
     }
     // 방문 단추 마크업이 바뀌면 전부 건너뛰고 통과한다 — 확인한 수에 하한을 둔다.
-    expect(checked, '방문 단추를 거의 못 찾았다').toBeGreaterThan(5);
+    expect(checked, '방문 단추를 거의 못 찾았다').toBeGreaterThanOrEqual(12);
     expect(bad, '카탈로그가 죽은 링크를 가리킨다').toEqual([]);
   });
 });

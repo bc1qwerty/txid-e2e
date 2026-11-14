@@ -8,14 +8,14 @@ test.describe('lokl.txid.uk - Notes', () => {
   test('app shell loads', async ({ page }) => {
     const res = await page.goto(BASE);
     expect(res!.status()).toBe(200);
-    await expect(page.getByRole('button', { name: 'Start fresh' })).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Start fresh' })).toBeVisible({ timeout: 15_000 });
   });
 
   // 🔴 Ctrl+S 를 누르지 않는다. 디바운스 자동 저장이 한 번도 안 돌던 것이 2026-11-13 까지
   //    라이브에 있었고, 저장을 전부 Ctrl+S 로 하던 테스트는 그것을 못 봤다.
   test('an edit autosaves and survives a reload', async ({ page }) => {
     await page.goto(BASE);
-    await page.getByRole('button', { name: 'Start fresh' }).click();
+    await page.getByRole('button', { name: 'Start fresh' }).click({ timeout: 15_000 });
     await expect(page.locator('.sidebar')).toBeVisible();
     const editBtn = page.getByRole('button', { name: 'Edit' });
     if (await editBtn.isVisible()) await editBtn.click();

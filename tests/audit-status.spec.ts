@@ -6,7 +6,8 @@ test("status home renders hero + grid", async ({ page }) => {
   const cards = page.locator(".site-card");
   await expect(cards.first()).toBeVisible();
   const count = await cards.count();
-  expect(count).toBeGreaterThan(10);
+  // 감시 26곳(2026-11).
+  expect(count).toBeGreaterThanOrEqual(20);
 });
 
 test("status mobile viewport", async ({ page }) => {
@@ -20,6 +21,9 @@ test("incidents page", async ({ page }) => {
   const res = await page.goto("https://status.txid.uk/incidents");
   expect(res?.status()).toBeLessThan(400);
   await expect(page.locator("h1").first()).toBeVisible();
+  // 본문이 비어도 h1 은 남는다 — 집계 칸과 타임라인 머리까지.
+  await expect(page.locator("main .stats .stat")).not.toHaveCount(0);
+  await expect(page.locator("main .section-head").first()).toBeVisible();
 });
 
 test("dev.txid.uk loads", async ({ page }) => {

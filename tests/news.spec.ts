@@ -7,7 +7,9 @@ const BASE = 'https://news.txid.uk';
 // 기사 모달도 없어져 제목을 누르면 /post/ 페이지로 바로 간다.
 test.describe('news.txid.uk - Front Page', () => {
   test('site title is the page h1', async ({ page }) => {
-    await page.goto(`${BASE}/`);
+    const res = await page.goto(`${BASE}/`);
+    // h1 은 sr-only 이고 하이드레이션이 다시 채운다 — 서버가 준 원문에 있어야 검색엔진이 읽는다.
+    expect(await res!.text()).toMatch(/<h1[^>]*>\s*TXID News/i);
     await expect(page.locator('main h1')).toHaveText(/TXID News/i);
   });
 
@@ -21,7 +23,7 @@ test.describe('news.txid.uk - Front Page', () => {
       /bitcoin|macro|politics|opinion/i
     );
     // 최신 1편 + 목록(14편 안팎)
-    expect(await page.locator('main article h3 a[href^="/post/"]').count()).toBeGreaterThanOrEqual(5);
+    expect(await page.locator('main article h3 a[href^="/post/"]').count()).toBeGreaterThanOrEqual(10);
   });
 
   test('sidebar shows the daily digest', async ({ page }) => {
@@ -55,7 +57,8 @@ test.describe('news.txid.uk - Front Page', () => {
     expect(response!.status()).toBe(200);
     await expect(page.locator('h1').first()).toHaveText(/bitcoin/i);
     const postLinks = page.locator('a[href^="/post/"]');
-    expect(await postLinks.count()).toBeGreaterThanOrEqual(3);
+    // 한 쪽에 12편.
+    expect(await postLinks.count()).toBeGreaterThanOrEqual(8);
   });
 
   test('macro and politics category routes work', async ({ page }) => {
@@ -88,10 +91,13 @@ test.describe('news.txid.uk - Front Page', () => {
     const json = await txt.json();
     expect(json.source).toBe('news.txid.uk');
     expect(Array.isArray(json.posts)).toBe(true);
-    expect(json.posts.length).toBeGreaterThan(10);
+    // 2026-11 기준 약 400편. 통째로 줄어든 것을 잡을 만큼만.
+    expect(json.posts.length).toBeGreaterThan(200);
 
     const rss = await request.get(`${BASE}/feed.xml`);
     expect(rss.status()).toBe(200);
-    expect(await rss.text()).toContain('<rss');
+    const xml = await rss.text();
+    expect(xml).toContain('<rss');
+    expect((xml.match(/<item>/g) || []).length, 'feed.xml 의 item 수').toBeGreaterThanOrEqual(20);
   });
 });

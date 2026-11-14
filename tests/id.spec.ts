@@ -12,6 +12,18 @@ test.describe('id.txid.uk - Identity Service', () => {
     await expect(page.locator('h1').first()).toBeVisible();
   });
 
+  // 로그인 화면은 api.txid.uk 의 SDK 가 그린다. <main> 이 비거나 SDK 가 안 오면 아무도 로그인하지 못한다.
+  test.describe('login surface', () => {
+    test.use({ liveAuth: true });
+    test('login page draws the sign-in methods', async ({ page }) => {
+      const res = await page.goto('https://id.txid.uk/ko/login/');
+      expect(res!.status()).toBe(200);
+      const host = page.locator('#login-host');
+      await expect(host.locator('.txid-auth-method-btn:visible').first()).toBeVisible({ timeout: 20_000 });
+      await expect(page.locator('#login-sdk-error')).toBeHidden();
+    });
+  });
+
   test('NIP-05 registration form exists', async ({ page }) => {
     await page.goto(BASE);
 

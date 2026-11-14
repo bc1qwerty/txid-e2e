@@ -10,6 +10,13 @@ const SITES: Array<[url: string, marker: string]> = [
   ['https://ghs.txid.uk/', 'id="ghs-topbar"'],
   ['https://dash.txid.uk/', 'Dashboard | txid.uk'],
   ['https://dash.txid.uk/', 'id="auth-gate"'],
+  // 마커 둘만 든 빈 껍데기도 통과했다 — 앱을 실제로 띄우는 스크립트와 본문 틀까지.
+  ['https://dash.txid.uk/', 'src="/app.js"'],
+  ['https://dash.txid.uk/', 'id="alert-list"'],
+  ['https://ghs.txid.uk/', 'id="root"'],
+  ['https://txt.txid.uk/', '<h2>Latest News'],
+  ['https://txt.txid.uk/', '<h2>Latest from Learn'],
+  ['https://map.txid.uk/', 'id="viewer"'],
   ['https://txt.txid.uk/', 'text-only mirror'],
   ['https://txt.txid.uk/', '<h1>txt.txid.uk</h1>'],
   // lib·shop 은 자기 리포에 e2e 가 있다 — 여기선 «떠 있고 제 얼굴인가» 만.
@@ -29,6 +36,23 @@ test.describe('fleet smoke - request-level availability', () => {
       expect(await res.text()).toContain(marker);
     });
   }
+
+  // 껍데기 HTML 은 200 인데 앱 번들이 404 인 배포를 잡는다(요청만 보내므로 브라우저 가드에 안 걸린다).
+  test('dash and ghs serve the app bundles their HTML points at', async ({ request }) => {
+    expect((await request.get('https://dash.txid.uk/app.js')).status()).toBe(200);
+    const ghs = await (await request.get('https://ghs.txid.uk/')).text();
+    const assets = [...ghs.matchAll(/(?:src|href)="(\/assets\/[^"]+\.(?:js|css))"/g)].map((m) => m[1]);
+    expect(assets.length, 'ghs index 에 번들 참조가 없다').toBeGreaterThanOrEqual(2);
+    for (const a of assets) {
+      expect((await request.get(`https://ghs.txid.uk${a}`)).status(), a).toBe(200);
+    }
+  });
+
+  test('txt.txid.uk lists posts', async ({ request }) => {
+    const html = await (await request.get('https://txt.txid.uk/')).text();
+    // 실제 약 30개 링크. 피드가 비면 머리말만 남는다.
+    expect((html.match(/<a /g) || []).length).toBeGreaterThanOrEqual(20);
+  });
 
   // map 의 실제 사고 모양은 «빈 키로 200» 이다 — 배포가 VWorld 키 자리표시를 못 바꾼 채 나간 경우.
   test('map.txid.uk app.js has its key stamped and /where answers', async ({ request }) => {
