@@ -100,7 +100,11 @@ test.describe('sweep regressions (2026-09)', () => {
   test('apex homepage leaks no internal work-note comments', async ({ request }) => {
     // txid-web 0c9e1c1: .astro HTML comments ship to prod; two internal memos
     // (favicon history, a11y audit note) were visible in the page source.
-    const html = await (await request.get('https://txid.uk/')).text();
+    const res = await request.get('https://txid.uk/');
+    // 부정 단언뿐이면 오류 페이지도 통과한다.
+    expect(res.status()).toBe(200);
+    const html = await res.text();
+    expect(html).toContain('<title');
     expect(html).not.toContain('a11y 전수');
     expect(html).not.toContain('파비콘 정본');
   });

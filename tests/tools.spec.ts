@@ -46,7 +46,8 @@ test.describe('tools.txid.uk - Bitcoin Tools', () => {
     const response = await page.goto(`${BASE}/en/`);
     expect(response!.status()).toBe(200);
     // 상태 코드만 보면 다른 언어 판이나 빈 틀이 나와도 통과한다 — 언어와 도구 목록까지.
-    await expect(page.locator('html')).toHaveAttribute('lang', 'en');
+    // DOM 의 lang 은 스크립트가 경로를 보고 다시 쓴다 — 틀린 언어 판을 잡으려면 응답 원문을 본다.
+    expect(await response!.text()).toMatch(/<html[^>]*\blang="en"/);
     expect(await page.locator('a.tool-dir-card').count()).toBeGreaterThanOrEqual(5);
   });
 
@@ -54,7 +55,8 @@ test.describe('tools.txid.uk - Bitcoin Tools', () => {
     const response = await page.goto(`${BASE}/ko/`);
     expect(response!.status()).toBe(200);
     // 상태 코드만 보면 다른 언어 판이나 빈 틀이 나와도 통과한다 — 언어와 도구 목록까지.
-    await expect(page.locator('html')).toHaveAttribute('lang', 'ko');
+    // DOM 의 lang 은 스크립트가 경로를 보고 다시 쓴다 — 틀린 언어 판을 잡으려면 응답 원문을 본다.
+    expect(await response!.text()).toMatch(/<html[^>]*\blang="ko"/);
     expect(await page.locator('a.tool-dir-card').count()).toBeGreaterThanOrEqual(5);
   });
 
@@ -62,7 +64,8 @@ test.describe('tools.txid.uk - Bitcoin Tools', () => {
     const response = await page.goto(`${BASE}/ja/`);
     expect(response!.status()).toBe(200);
     // 상태 코드만 보면 다른 언어 판이나 빈 틀이 나와도 통과한다 — 언어와 도구 목록까지.
-    await expect(page.locator('html')).toHaveAttribute('lang', 'ja');
+    // DOM 의 lang 은 스크립트가 경로를 보고 다시 쓴다 — 틀린 언어 판을 잡으려면 응답 원문을 본다.
+    expect(await response!.text()).toMatch(/<html[^>]*\blang="ja"/);
     expect(await page.locator('a.tool-dir-card').count()).toBeGreaterThanOrEqual(5);
   });
 

@@ -101,15 +101,19 @@ test.describe('apps.txid.uk - App Directory', () => {
     expect(detail.length, '허브에서 카드를 못 찾았다').toBeGreaterThan(10);
 
     const bad: string[] = [];
+    let checked = 0;
     for (const path of detail) {
       const page = await request.get(`https://apps.txid.uk${path}`);
       if (!page.ok()) { bad.push(`${page.status()} ${path}`); continue; }
       const href = (await page.text()).match(/<a href="(https?:\/\/[^"]+)" class="btn visit-btn"/)?.[1];
       if (!href) { continue; }   // 목적지가 없는 항목(비공개 리포 등)은 버튼을 안 그린다
+      checked += 1;
       const res = await request.get(href, { maxRedirects: 5 }).catch(() => null);
       if (!res) { bad.push(`연결 실패 ${href}`); continue; }
       if (res.status() >= 400) { bad.push(`${res.status()} ${href}`); }
     }
+    // 방문 단추 마크업이 바뀌면 전부 건너뛰고 통과한다 — 확인한 수에 하한을 둔다.
+    expect(checked, '방문 단추를 거의 못 찾았다').toBeGreaterThan(5);
     expect(bad, '카탈로그가 죽은 링크를 가리킨다').toEqual([]);
   });
 });

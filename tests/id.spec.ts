@@ -8,7 +8,7 @@ test.describe('id.txid.uk - Identity Service', () => {
     const response = await page.goto(BASE);
     expect(response!.status()).toBe(200);
     await expect(page).toHaveTitle(/NIP-05.*txid\.uk/);
-    await expect(page.locator('html')).toHaveAttribute('lang', 'en');
+    expect(await response!.text()).toMatch(/<html[^>]*\blang="en"/);
     await expect(page.locator('h1').first()).toBeVisible();
   });
 
