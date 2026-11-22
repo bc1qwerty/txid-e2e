@@ -24,14 +24,14 @@ test.describe('social.txid.uk', () => {
     expect(unknown.status()).toBe(404);
   });
 
-  test('첫 화면은 개요(이번 주·달 요약, 마일리지 그래프)', async ({ page }) => {
+  test('첫 화면은 개요(이번 주·달 요약, 마일리지 그래프, 대회 기록)', async ({ page }) => {
     const response = await page.goto(BASE + '/@seowondeuk/');
     expect(response!.status()).toBe(200);
     await expect(page).toHaveTitle(/social\.txid\.uk/);
-    // 요약 칸·그래프·최근 기록은 스크립트가 /api/public 으로 그린다.
+    // 요약 칸·그래프·대회 기록은 스크립트가 /api/public 으로 그린다.
     await expect(page.locator('#overviewView .o-tile')).toHaveCount(2);
     await expect(page.locator('#oWeeks svg rect').first()).toBeVisible();
-    await expect(page.locator('#oRecent .card').first()).toBeVisible();
+    await expect(page.locator('#oRaces .card').first()).toBeVisible();
   });
 
   test('피드 탭에 활동 목록이 뜬다', async ({ page }) => {
