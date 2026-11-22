@@ -7,10 +7,18 @@ const BASE = 'https://social.txid.uk';
 // 🔑 이 파일이 있어야 archive 배포 워크플로가 social 을 배포한다(tests/<short>.spec.ts 규약).
 // 기록 수는 GPX 를 올릴 때마다 바뀌므로 개수는 단언하지 않는다.
 test.describe('social.txid.uk', () => {
-  test('page loads with activity cards', async ({ page }) => {
+  test('첫 화면은 개요(이번 주·달 요약, 마일리지 그래프)', async ({ page }) => {
     const response = await page.goto(BASE + '/');
     expect(response!.status()).toBe(200);
     await expect(page).toHaveTitle(/social\.txid\.uk/);
+    // 요약 칸·그래프·최근 기록은 스크립트가 /api/public 으로 그린다.
+    await expect(page.locator('#overviewView .o-tile')).toHaveCount(2);
+    await expect(page.locator('#oWeeks svg rect').first()).toBeVisible();
+    await expect(page.locator('#oRecent .card').first()).toBeVisible();
+  });
+
+  test('피드 탭에 활동 목록이 뜬다', async ({ page }) => {
+    await page.goto(BASE + '/#feed');
     await expect(page.locator('#feed .card').first()).toBeVisible();
   });
 
