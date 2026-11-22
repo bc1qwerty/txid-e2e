@@ -35,10 +35,11 @@ test.describe('social.txid.uk', () => {
     await expect(page.locator('#oRaces .card').first()).toBeVisible();
   });
 
-  test('월간 마일리지 카드를 누르면 일간·주간·월간 상세가 뜬다', async ({ page }) => {
+  test('월간 마일리지 카드를 누르면 통계 탭(일간·주간·월간)으로 간다', async ({ page }) => {
     await page.goto(BASE + '/@seowondeuk/');
     await page.locator('a.o-mileage').click();
-    await expect(page).toHaveURL(/#mileage$/);
+    await expect(page).toHaveURL(/#stats$/);
+    await expect(page.locator('#tabStats')).toHaveAttribute('aria-selected', 'true');
     await expect(page.locator('#mDays svg rect').first()).toBeVisible();
     await expect(page.locator('#mWeeks svg')).toBeVisible();
   });
