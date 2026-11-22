@@ -1,0 +1,54 @@
+import { test, expect } from '../fixtures';
+
+const BASE = 'https://social.txid.uk';
+
+// 2026-11-22 신설(archive apps/social). 러닝 기록 피드 — 누구나 보는 요약(/api/public)과
+// 본인 계정만 보는 상세(/api/private, Pages Function 이 api.txid.uk/auth/me 로 판정)가 따로다.
+// 🔑 이 파일이 있어야 archive 배포 워크플로가 social 을 배포한다(tests/<short>.spec.ts 규약).
+// 기록 수는 GPX 를 올릴 때마다 바뀌므로 개수는 단언하지 않는다.
+test.describe('social.txid.uk', () => {
+  test('page loads with activity cards', async ({ page }) => {
+    const response = await page.goto(BASE + '/');
+    expect(response!.status()).toBe(200);
+    await expect(page).toHaveTitle(/social\.txid\.uk/);
+    await expect(page.locator('#feed .card').first()).toBeVisible();
+  });
+
+  test('공용 헤더가 있고 언어 고르개는 없다', async ({ page }) => {
+    await page.goto(BASE + '/');
+    await expect(page.locator('header .logo')).toContainText('social');
+    await expect(page.locator('.lang-dropdown')).toHaveCount(0);
+  });
+
+  test('테마 토글이 실제로 테마를 바꾼다', async ({ page }) => {
+    await page.goto(BASE + '/');
+    const before = await page.evaluate(() => document.documentElement.getAttribute('data-theme'));
+    await page.click('#theme-btn');
+    await expect
+      .poll(() => page.evaluate(() => document.documentElement.getAttribute('data-theme')))
+      .not.toBe(before);
+  });
+
+  test('공개 요약에는 훈련 경로·시각·지점별 기록이 없다', async ({ request }) => {
+    const r = await request.get(BASE + '/api/public');
+    expect(r.status()).toBe(200);
+    const { activities } = await r.json();
+    expect(Array.isArray(activities)).toBe(true);
+    for (const a of activities) {
+      expect(a.start, a.id).toBeUndefined();
+      expect(a.series, a.id).toBeUndefined();
+      if (!a.race) expect(a.route, a.id).toBeUndefined();
+    }
+  });
+
+  test('로그인 없이는 상세 기록을 주지 않는다', async ({ request }) => {
+    const r = await request.get(BASE + '/api/private');
+    expect(r.status()).toBe(401);
+    expect(r.headers()['cache-control']).toContain('no-store');
+    // 인코딩한 경로로 함수를 건너뛰어도 데이터가 아니라 화면 껍데기가 와야 한다.
+    for (const p of ['/%61pi/private', '/api%2Fprivate']) {
+      const e = await request.get(BASE + p);
+      expect(await e.text(), p).not.toContain('"activities"');
+    }
+  });
+});

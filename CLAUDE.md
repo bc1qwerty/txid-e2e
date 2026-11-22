@@ -34,6 +34,7 @@ End-to-end test suite for all txid.uk subdomains. Uses Playwright to verify func
   - `fleet-smoke.spec.ts` -- request-level availability for ghs, dash, txt, blog, map
   - `blog.spec.ts` -- blog.txid.uk (tistory mirror)
   - `lokl.spec.ts` -- lokl.txid.uk notes app (autosave)
+  - `social.spec.ts` -- social.txid.uk running feed (public summary vs owner-only `/api/private`)
   - `helpers-selftest.spec.ts` -- proves `locale-helpers` catches bounces and wrong-language bodies (fake pages, no network)
 - `playwright.config.ts` -- Playwright configuration
 - `run-tests.sh` -- Test runner script
@@ -58,4 +59,4 @@ bash run-tests.sh     # Run via shell script
 - Consumed remotely: archive's post-deploy smoke job checks out this repo and runs the deployed sites' specs
 
 ## Status
-- Active. 17 spec files covering 20 live txid.uk hosts.
+- Active. 18 spec files covering 21 live txid.uk hosts.
