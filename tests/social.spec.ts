@@ -16,6 +16,14 @@ test.describe('social.txid.uk', () => {
     expect(old.headers()['location']).toContain('/@seowondeuk/');
   });
 
+  test('키 주소(/@<라이트닝 키>)는 그 계정의 이름 주소로, 모르는 키는 404', async ({ request }) => {
+    const key = await request.get(BASE + '/@02a1ab6832c21611fc73a40f9b5d0f16ba030f7cc455920b1a85c620d185d6b173', { maxRedirects: 0 });
+    expect(key.status()).toBe(302);
+    expect(key.headers()['location']).toBe('/@seowondeuk/');
+    const unknown = await request.get(BASE + '/@03' + '0'.repeat(64), { maxRedirects: 0 });
+    expect(unknown.status()).toBe(404);
+  });
+
   test('첫 화면은 개요(이번 주·달 요약, 마일리지 그래프)', async ({ page }) => {
     const response = await page.goto(BASE + '/@seowondeuk/');
     expect(response!.status()).toBe(200);
