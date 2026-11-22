@@ -40,8 +40,11 @@ test.describe('social.txid.uk', () => {
     await page.locator('a.o-mileage').click();
     await expect(page).toHaveURL(/#stats$/);
     await expect(page.locator('#tabStats')).toHaveAttribute('aria-selected', 'true');
-    await expect(page.locator('#mDays svg rect').first()).toBeVisible();
-    await expect(page.locator('#mWeeks svg')).toBeVisible();
+    await expect(page.locator('#stChart svg rect').first()).toBeVisible();
+    // 기간 단추로 그래프를 바꾼다(일·주·월 한 그래프).
+    await page.locator('[data-period="month"]').click();
+    await expect(page.locator('[data-period="month"]')).toHaveAttribute('aria-pressed', 'true');
+    await expect(page.locator('.st-table tbody tr').first()).toBeVisible();
   });
 
   test('피드 탭에 활동 목록이 뜬다', async ({ page }) => {
