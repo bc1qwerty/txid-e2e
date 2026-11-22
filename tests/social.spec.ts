@@ -27,7 +27,7 @@ test.describe('social.txid.uk', () => {
   test('첫 화면은 개요(이번 주·달 요약, 마일리지 그래프, 대회 기록)', async ({ page }) => {
     const response = await page.goto(BASE + '/@seowondeuk/');
     expect(response!.status()).toBe(200);
-    await expect(page).toHaveTitle(/social\.txid\.uk/);
+    await expect(page).toHaveTitle(/발자국/);
     // 요약 칸·그래프·대회 기록은 스크립트가 /api/public 으로 그린다.
     await expect(page.locator('#overviewView .o-tile')).toHaveCount(3); // 이번 주·이번 달·지금 컨디션
     await expect(page.locator('#oPbs .o-pb').first()).toBeVisible();
@@ -42,7 +42,7 @@ test.describe('social.txid.uk', () => {
 
   test('공용 헤더가 있고 언어 고르개는 없다', async ({ page }) => {
     await page.goto(BASE + '/@seowondeuk/');
-    await expect(page.locator('header .logo')).toContainText('social');
+    await expect(page.locator('header .logo')).toContainText('발자국');
     await expect(page.locator('.lang-dropdown')).toHaveCount(0);
   });
 
