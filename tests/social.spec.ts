@@ -29,7 +29,8 @@ test.describe('social.txid.uk', () => {
     expect(response!.status()).toBe(200);
     await expect(page).toHaveTitle(/발자국/);
     // 요약 칸·그래프·대회 기록은 스크립트가 /api/public 으로 그린다.
-    await expect(page.locator('#overviewView .o-tile')).toHaveCount(2); // 이번 주·이번 달
+    await expect(page.locator('#overviewView > .o-tiles > .o-tile')).toHaveCount(2); // 이번 주·이번 달
+    await expect(page.locator('#overviewView .o-z2 .o-tile')).toHaveCount(2); // 존2 비율: 이번 주·이번 달
     await expect(page.locator('#oPbs .o-pb').first()).toBeVisible();
     await expect(page.locator('#oMonths svg rect').first()).toBeVisible();
     await expect(page.locator('#oRaces .card').first()).toBeVisible();
@@ -47,9 +48,11 @@ test.describe('social.txid.uk', () => {
     await expect(page.locator('.st-table tbody tr').first()).toBeVisible();
   });
 
-  test('피드 탭에 활동 목록이 뜬다', async ({ page }) => {
+  test('기록 탭(#feed)에 활동 목록만 뜬다', async ({ page }) => {
     await page.goto(BASE + '/@seowondeuk/#feed');
     await expect(page.locator('#feed .card').first()).toBeVisible();
+    await expect(page.locator('#tabFeed')).toHaveText('기록');
+    await expect(page.locator('aside.side')).toBeHidden(); // 오른쪽 통계 패널은 추이에서만
   });
 
   test('공용 헤더가 있고 언어 고르개는 없다', async ({ page }) => {
