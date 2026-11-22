@@ -29,7 +29,8 @@ test.describe('social.txid.uk', () => {
     expect(response!.status()).toBe(200);
     await expect(page).toHaveTitle(/social\.txid\.uk/);
     // 요약 칸·그래프·대회 기록은 스크립트가 /api/public 으로 그린다.
-    await expect(page.locator('#overviewView .o-tile')).toHaveCount(2);
+    await expect(page.locator('#overviewView .o-tile')).toHaveCount(3); // 이번 주·이번 달·지금 컨디션
+    await expect(page.locator('#oPbs .o-pb').first()).toBeVisible();
     await expect(page.locator('#oWeeks svg rect').first()).toBeVisible();
     await expect(page.locator('#oRaces .card').first()).toBeVisible();
   });
