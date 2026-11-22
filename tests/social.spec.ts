@@ -54,7 +54,7 @@ test.describe('social.txid.uk', () => {
       .not.toBe(before);
   });
 
-  test('공개 요약에는 훈련 경로·시각·지점별 기록이 없다', async ({ request }) => {
+  test('공개 요약에는 훈련 위치 좌표·시각·지점별 기록이 없다', async ({ request }) => {
     const r = await request.get(API + '/public');
     expect(r.status()).toBe(200);
     const { activities } = await r.json();
@@ -62,7 +62,11 @@ test.describe('social.txid.uk', () => {
     for (const a of activities) {
       expect(a.start, a.id).toBeUndefined();
       expect(a.series, a.id).toBeUndefined();
-      if (!a.race) expect(a.route, a.id).toBeUndefined();
+      if (!a.race) {
+        // 훈련 경로는 모양만: 위경도가 아니라 0~1000 정수 좌표.
+        expect(a.route, a.id).toBeUndefined();
+        for (const [x, y] of a.shape ?? []) expect(Number.isInteger(x) && Number.isInteger(y) && x >= 0 && x <= 1000 && y >= 0 && y <= 1000, a.id).toBe(true);
+      }
     }
   });
 
