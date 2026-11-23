@@ -55,6 +55,14 @@ test.describe('social.txid.uk', () => {
     await expect(page.locator('aside.side')).toBeHidden(); // 오른쪽 통계 패널은 추이에서만
   });
 
+  test('개요의 「전체 기록 보기」는 거리별 기록 페이지(#records)로 간다', async ({ page }) => {
+    await page.goto(BASE + '/@seowondeuk/');
+    await page.locator('a.pb-all').click();
+    await expect(page).toHaveURL(/#records$/);
+    await expect(page.locator('#recordsView .pb-dist').first()).toBeVisible();
+    await expect(page.locator('#recordsView .pb-dist .o-pb')).toHaveCount(18); // 로드·트레일 × 9 거리(빈칸 포함)
+  });
+
   test('공용 헤더가 있고 언어 고르개는 없다', async ({ page }) => {
     await page.goto(BASE + '/@seowondeuk/');
     await expect(page.locator('header .logo')).toContainText('발자국');
