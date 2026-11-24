@@ -60,7 +60,7 @@ test.describe('social.txid.uk', () => {
     await page.locator('a.pb-all').click();
     await expect(page).toHaveURL(/#records$/);
     await expect(page.locator('#recordsView .pb-dist').first()).toBeVisible();
-    await expect(page.locator('#recordsView .pb-dist .o-pb')).toHaveCount(18); // 로드·트레일 × 9 거리(빈칸 포함)
+    await expect(page.locator('#recordsView .pb-dist .o-pb')).toHaveCount(23); // 단거리 5 + 로드·트레일 × 9 거리(빈칸 포함)
   });
 
   test('공용 헤더가 있고 언어 고르개는 없다', async ({ page }) => {
