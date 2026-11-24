@@ -108,9 +108,14 @@ test.describe('sim.txid.uk - Bitcoin Simulator', () => {
         .poll(async () => (await page.locator('#mine-diff-val').innerText()).trim(), { timeout: 5_000 })
         .toBe(String(n));
       // 🔑 표기만 보면 반쪽이다. **타깃이 실제로 그만큼의 선행 0 을 갖는지**가 라벨의 약속이다.
-      const target = (await page.locator('#mine-target').innerText()).trim();
-      const zeros = (target.match(/^0*/) || [''])[0].length;
-      expect(zeros, `슬라이더 ${n} 인데 타깃 선행 0 은 ${zeros}개 (${target.slice(0, 12)}…)`).toBe(n);
+      // 타깃은 채굴 워커의 header-hash 답으로 채워진다 — 라벨(동기)보다 늦으니 그 답까지 기다린다(즉시 읽으면 1/12 로 옛 값·「—」).
+      let target = '';
+      await expect
+        .poll(async () => {
+          target = (await page.locator('#mine-target').innerText()).trim();
+          return (target.match(/^0*/) || [''])[0].length;
+        }, { timeout: 5_000, message: `슬라이더 ${n} 인데 타깃 선행 0 개수가 다르다 (${target.slice(0, 12)}…)` })
+        .toBe(n);
     }
     expect(errs, 'JS 오류').toEqual([]);
   });
