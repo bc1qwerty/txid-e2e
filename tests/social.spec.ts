@@ -96,7 +96,9 @@ test.describe('social.txid.uk', () => {
 
   test('로그인 없이는 상세 기록을 주지 않는다', async ({ request }) => {
     const r = await request.get(API + '/private');
-    expect(r.status()).toBe(401);
+    // 204 = «볼 것 없음»(4xx 는 모든 방문자 콘솔에 오류로 찍혀서, 2026-11-25).
+    expect(r.status()).toBe(204);
+    expect(await r.text()).toBe('');
     // 없는 이름도 데이터를 주지 않는다.
     expect((await request.get(BASE + '/api/u/nobody-here/public')).status()).toBe(404);
     expect(r.headers()['cache-control']).toContain('no-store');
