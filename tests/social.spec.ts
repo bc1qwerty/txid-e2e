@@ -52,7 +52,7 @@ test.describe('social.txid.uk', () => {
     await page.goto(BASE + '/@seowondeuk/#feed');
     await expect(page.locator('#feed .card').first()).toBeVisible();
     await expect(page.locator('#tabFeed')).toHaveText('기록');
-    await expect(page.locator('aside.side')).toBeHidden(); // 오른쪽 통계 패널은 추이에서만
+    await expect(page.locator('aside.side')).toHaveCount(0); // 오른쪽 통계 패널은 걷었다(통계 탭과 같은 내용, 2026-11-26)
   });
 
   test('개요의 「전체 기록 보기」는 거리별 기록 페이지(#records)로 간다', async ({ page }) => {
