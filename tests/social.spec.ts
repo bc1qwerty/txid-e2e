@@ -24,8 +24,8 @@ test.describe('social.txid.uk', () => {
     expect(unknown.status()).toBe(404);
   });
 
-  test('첫 화면은 개요(이번 주·달 요약, 마일리지 그래프, 대회 기록)', async ({ page }) => {
-    const response = await page.goto(BASE + '/@seowondeuk/');
+  test('운동 갈래(#fit)의 첫 화면은 개요(이번 주·달 요약, 마일리지 그래프, 대회 기록)', async ({ page }) => {
+    const response = await page.goto(BASE + '/@seowondeuk/#fit');
     expect(response!.status()).toBe(200);
     await expect(page).toHaveTitle(/발자국/);
     // 요약 칸·그래프·대회 기록은 스크립트가 /api/public 으로 그린다.
@@ -37,7 +37,7 @@ test.describe('social.txid.uk', () => {
   });
 
   test('월간 마일리지 카드를 누르면 통계 탭(일간·주간·월간)으로 간다', async ({ page }) => {
-    await page.goto(BASE + '/@seowondeuk/');
+    await page.goto(BASE + '/@seowondeuk/#fit');
     await page.locator('.o-mileage a.o-more').click();
     await expect(page).toHaveURL(/#stats$/);
     await expect(page.locator('#tabStats')).toHaveAttribute('aria-selected', 'true');
@@ -56,7 +56,7 @@ test.describe('social.txid.uk', () => {
   });
 
   test('개요의 「전체 기록 보기」는 거리별 기록 페이지(#records)로 간다', async ({ page }) => {
-    await page.goto(BASE + '/@seowondeuk/');
+    await page.goto(BASE + '/@seowondeuk/#fit');
     await page.locator('a.pb-all').click();
     await expect(page).toHaveURL(/#records$/);
     await expect(page.locator('#recordsView .pb-dist').first()).toBeVisible();
@@ -113,7 +113,7 @@ test.describe('social.txid.uk', () => {
   const stats = (page) => page.locator('#pStats .p-stat b').evaluateAll((els) => els.map((e) => parseFloat(e.textContent!.replace(/,/g, ''))));
 
   test('합계 단추(하이킹·걷기)는 활동 수·거리·누적고도·운동 시간을 함께 바꾼다, 기본은 둘 다 포함', async ({ page }) => {
-    await page.goto(BASE + '/@seowondeuk/');
+    await page.goto(BASE + '/@seowondeuk/#fit');
     await expect(page.locator('#oRaces .card').first()).toBeVisible();
     for (const k of ['hike', 'walk']) await expect(page.locator(`.chip-toggle.t-${k}`)).toHaveAttribute('aria-pressed', 'true');
     let before = await stats(page);
@@ -133,7 +133,7 @@ test.describe('social.txid.uk', () => {
 
   test('개요: 대회 전반·후반 표, 공개분에 다음 대회가 있으면 그 칸', async ({ page, request }) => {
     const pub = await (await request.get(API + '/public')).json();
-    await page.goto(BASE + '/@seowondeuk/');
+    await page.goto(BASE + '/@seowondeuk/#fit');
     await expect(page.locator('#oRaces .card').first()).toBeVisible();
     const withHalves = pub.activities.filter((a) => a.race && Array.isArray(a.halves)).length;
     if (withHalves >= 2) await expect(page.locator('.rc-table tbody tr')).toHaveCount(withHalves);
@@ -189,5 +189,46 @@ test.describe('social.txid.uk', () => {
       expect(a.shoe, a.id).toBeUndefined();
     }
     for (const k of ['daily', 'weight', 'gear']) expect(pub[k], k).toBeUndefined();
+  });
+
+  // ── 2026-11-28: 한 사람의 페이지 — 프로필(첫 화면)·운동·이력 세 갈래 ──
+  test('첫 화면은 프로필: 갈래 요약 카드 둘과 최근 기록, 갈래를 오가면 주소와 화면이 같이 바뀐다', async ({ page }) => {
+    await page.goto(BASE + '/@seowondeuk/');
+    await expect(page.locator('#secProfile')).toHaveAttribute('aria-current', 'page');
+    await expect(page.locator('#profileView .h-card')).toHaveCount(2);
+    await expect(page.locator('#profileView .h-row').first()).toBeVisible();
+    await expect(page.locator('#fitBar')).toBeHidden();
+    await page.locator('#profileView .h-card[href="#fit"]').click();
+    await expect(page).toHaveURL(/#fit$/);
+    await expect(page.locator('#oRaces .card').first()).toBeVisible();
+    await page.locator('#secCareer').click();
+    await expect(page).toHaveURL(/#career$/);
+    await expect(page.locator('#careerView .panel').first()).toBeVisible();
+    await expect(page.locator('#fitLayout')).toBeHidden();
+    await page.locator('#secProfile').click();
+    await expect(page.locator('#profileView .h-card').first()).toBeVisible();
+  });
+
+  test('프로필의 최근 기록에서 연 상세는 닫으면 프로필로 돌아온다', async ({ page }) => {
+    await page.goto(BASE + '/@seowondeuk/');
+    await page.locator('#profileView .h-row').first().click();
+    await expect(page.locator('#detail')).toBeVisible();
+    await page.locator('#backBtn').click();
+    await expect(page.locator('#detail')).toBeHidden();
+    await expect(page.locator('#secProfile')).toHaveAttribute('aria-current', 'page');
+  });
+
+  test('이력: 공개분에 실린 줄만 보이고, 본인 전용 줄과 증빙·메모는 나가지 않는다', async ({ page, request }) => {
+    const pub = await (await request.get(API + '/public')).json();
+    const allow: Record<string, string[]> = { certs: ['name', 'issuer', 'date', 'expires', 'field'], education: ['school', 'major', 'degree', 'start', 'end'],
+      training: ['name', 'org', 'from', 'to', 'hours'], career: ['org', 'from', 'to', 'title', 'work'] };
+    for (const [kind, ok] of Object.entries(allow)) {
+      for (const row of pub.profile[kind] ?? []) for (const k of Object.keys(row)) expect(ok, `${kind}.${k}`).toContain(k);
+    }
+    await page.goto(BASE + '/@seowondeuk/#career');
+    await expect(page.locator('#careerView .cv-cert')).toHaveCount((pub.profile.certs ?? []).length);
+    // 로그인 전에는 자물쇠 줄이 없다.
+    await expect(page.locator('#careerView .lock')).toHaveCount(0);
+    await expect(page.locator('#careerView .own')).toHaveCount(0);
   });
 });
