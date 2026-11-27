@@ -1,13 +1,15 @@
 import { test, expect } from '../fixtures';
 
-const BASE = 'https://social.txid.uk';
+// 2026-11-28: 주소가 my.txid.uk 로 바뀌었다(옛 social.txid.uk, 이름도 「발자국」→「my」). 파일 이름은 배포 규약(tests/<앱 이름>.spec.ts)이라 그대로.
+//   SOCIAL_BASE 는 주소를 옮기는 동안 옛 주소로 시험하려고 둔다.
+const BASE = process.env.SOCIAL_BASE || 'https://my.txid.uk';
 const API = BASE + '/api/u/seowondeuk';
 
 // 2026-11-22 신설(archive apps/social). 운동 기록 — 이름별 페이지 /@<NIP-05 이름>. 누구나 보는 요약(/api/u/<이름>/public)과
 // 주인 계정만 보는 상세(/api/u/<이름>/private, Pages Function 이 api.txid.uk/auth/me 의 계정 번호로 판정)가 따로다.
 // 🔑 이 파일이 있어야 archive 배포 워크플로가 social 을 배포한다(tests/<short>.spec.ts 규약).
 // 기록 수는 GPX 를 올릴 때마다 바뀌므로 개수는 단언하지 않는다.
-test.describe('social.txid.uk', () => {
+test.describe('my.txid.uk (apps/social)', () => {
   test('첫 주소는 (로그인 안 했으면) 메인 이름 페이지로 간다, 옛 이름 주소는 넘긴다', async ({ page, request }) => {
     await page.goto(BASE + '/');
     await expect(page).toHaveURL(/\/@seowondeuk\/$/);
@@ -27,7 +29,7 @@ test.describe('social.txid.uk', () => {
   test('운동 갈래(#fit)의 첫 화면은 개요(이번 주·달 요약, 마일리지 그래프, 대회 기록)', async ({ page }) => {
     const response = await page.goto(BASE + '/@seowondeuk/#fit');
     expect(response!.status()).toBe(200);
-    await expect(page).toHaveTitle(/발자국/);
+    await expect(page).toHaveTitle(/· my$/);
     // 요약 칸·그래프·대회 기록은 스크립트가 /api/public 으로 그린다.
     await expect(page.locator('#overviewView > .o-tiles > .o-tile')).toHaveCount(2); // 이번 주·이번 달
     await expect(page.locator('#overviewView .o-z2 .o-tile')).toHaveCount(2); // 존2 비율: 이번 주·이번 달
@@ -65,7 +67,7 @@ test.describe('social.txid.uk', () => {
 
   test('공용 헤더가 있고 언어 고르개는 없다', async ({ page }) => {
     await page.goto(BASE + '/@seowondeuk/');
-    await expect(page.locator('header .logo')).toContainText('발자국');
+    await expect(page.locator('header .logo')).toContainText('my');
     await expect(page.locator('.lang-dropdown')).toHaveCount(0);
   });
 
@@ -230,5 +232,29 @@ test.describe('social.txid.uk', () => {
     // 로그인 전에는 자물쇠 줄이 없다.
     await expect(page.locator('#careerView .lock')).toHaveCount(0);
     await expect(page.locator('#careerView .own')).toHaveCount(0);
+  });
+
+  // ── 2026-11-28: my.txid.uk 로 합침 — 어두운 기본 화면, 본인 전용 화면(/career) ──
+  test('기기가 밝은 설정이어도 기본은 어두운 화면이다', async ({ browser }) => {
+    const ctx = await browser.newContext({ colorScheme: 'light' });
+    const page = await ctx.newPage();
+    await page.goto(BASE + '/@seowondeuk/');
+    await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
+    await ctx.close();
+  });
+
+  test('본인 전용 화면(/career·/api/jobs)은 로그인 없이는 내용을 주지 않고, 갈래 줄에도 보이지 않는다', async ({ page, request }) => {
+    const career = await request.get(BASE + '/career');
+    expect(career.status()).toBe(401);
+    expect(career.headers()['cache-control']).toContain('no-store');
+    const body = await career.text();
+    expect(body).toContain('로그인이 필요합니다');
+    expect(body).not.toContain('jw-snapshot'); // 본문(전수조사 화면)의 표식
+    const jobs = await request.get(BASE + '/api/jobs');
+    expect(jobs.status()).toBe(401);
+    expect(await jobs.text()).not.toContain('"jobs"');
+    await page.goto(BASE + '/@seowondeuk/');
+    await expect(page.locator('#profileView .h-card').first()).toBeVisible();
+    await expect(page.locator('#secJobs')).toBeHidden();
   });
 });
