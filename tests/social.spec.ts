@@ -224,7 +224,8 @@ test.describe('my.txid.uk (apps/social)', () => {
     const pub = await (await request.get(API + '/public')).json();
     const allow: Record<string, string[]> = { certs: ['name', 'issuer', 'date', 'expires', 'field'], education: ['school', 'major', 'degree', 'start', 'end'],
       training: ['name', 'org', 'from', 'to', 'hours'], career: ['org', 'from', 'to', 'title', 'work'],
-      grades: ['name', 'level', 'issuer', 'date'], awards: ['name', 'issuer', 'date'], tests: ['name', 'score', 'date', 'expires', 'issuer'] };
+      grades: ['name', 'level', 'issuer', 'date'], awards: ['name', 'issuer', 'date'], tests: ['name', 'score', 'best', 'date', 'expires', 'issuer'],
+      military: ['name', 'from', 'to'], activities: ['name', 'from', 'to'], volunteer: ['name', 'org', 'from', 'to'] };
     const common = ['detail', 'history']; // 눌러서 펼치는 설명·지난 기록 표
     for (const [kind, ok] of Object.entries(allow)) {
       for (const row of pub.profile[kind] ?? []) for (const k of Object.keys(row)) expect([...ok, ...common], `${kind}.${k}`).toContain(k);
