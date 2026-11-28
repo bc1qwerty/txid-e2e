@@ -223,12 +223,13 @@ test.describe('my.txid.uk (apps/social)', () => {
   test('이력: 공개분에 실린 줄만 보이고, 본인 전용 줄과 증빙·메모는 나가지 않는다', async ({ page, request }) => {
     const pub = await (await request.get(API + '/public')).json();
     const allow: Record<string, string[]> = { certs: ['name', 'issuer', 'date', 'expires', 'field'], education: ['school', 'major', 'degree', 'start', 'end'],
-      training: ['name', 'org', 'from', 'to', 'hours'], career: ['org', 'from', 'to', 'title', 'work'] };
+      training: ['name', 'org', 'from', 'to', 'hours'], career: ['org', 'from', 'to', 'title', 'work'],
+      grades: ['name', 'level', 'issuer', 'date'], awards: ['name', 'issuer', 'date'] };
     for (const [kind, ok] of Object.entries(allow)) {
       for (const row of pub.profile[kind] ?? []) for (const k of Object.keys(row)) expect(ok, `${kind}.${k}`).toContain(k);
     }
     await page.goto(BASE + '/@seowondeuk/#career');
-    await expect(page.locator('#careerView .cv-cert')).toHaveCount((pub.profile.certs ?? []).length);
+    await expect(page.locator('#careerView .cv-cert')).toHaveCount((pub.profile.certs ?? []).length + (pub.profile.grades ?? []).length); // 자격증 카드 + 등급 카드
     // 로그인 전에는 자물쇠 줄이 없다.
     await expect(page.locator('#careerView .lock')).toHaveCount(0);
     await expect(page.locator('#careerView .own')).toHaveCount(0);
