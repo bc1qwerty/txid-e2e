@@ -224,12 +224,21 @@ test.describe('my.txid.uk (apps/social)', () => {
     const pub = await (await request.get(API + '/public')).json();
     const allow: Record<string, string[]> = { certs: ['name', 'issuer', 'date', 'expires', 'field'], education: ['school', 'major', 'degree', 'start', 'end'],
       training: ['name', 'org', 'from', 'to', 'hours'], career: ['org', 'from', 'to', 'title', 'work'],
-      grades: ['name', 'level', 'issuer', 'date'], awards: ['name', 'issuer', 'date'] };
+      grades: ['name', 'level', 'issuer', 'date'], awards: ['name', 'issuer', 'date'], tests: ['name', 'score', 'date', 'expires', 'issuer'] };
+    const common = ['detail', 'history']; // 눌러서 펼치는 설명·지난 기록 표
     for (const [kind, ok] of Object.entries(allow)) {
-      for (const row of pub.profile[kind] ?? []) for (const k of Object.keys(row)) expect(ok, `${kind}.${k}`).toContain(k);
+      for (const row of pub.profile[kind] ?? []) for (const k of Object.keys(row)) expect([...ok, ...common], `${kind}.${k}`).toContain(k);
     }
     await page.goto(BASE + '/@seowondeuk/#career');
-    await expect(page.locator('#careerView .cv-cert')).toHaveCount((pub.profile.certs ?? []).length + (pub.profile.grades ?? []).length); // 자격증 카드 + 등급 카드
+    await expect(page.locator('#careerView .cv-cert')).toHaveCount((pub.profile.certs ?? []).length + (pub.profile.grades ?? []).length + (pub.profile.tests ?? []).length); // 자격증·등급·어학 카드
+    // 자세한 내용이 있는 항목은 누르면 펼쳐진다.
+    const withMore = Object.keys(allow).flatMap((k) => pub.profile[k] ?? []).filter((r) => r.detail || (r.history ?? []).length).length;
+    await expect(page.locator('#careerView details')).toHaveCount(withMore);
+    if (withMore) {
+      const first = page.locator('#careerView details').first();
+      await first.locator('summary').click();
+      await expect(first.locator('.cv-extra')).toBeVisible();
+    }
     // 로그인 전에는 자물쇠 줄이 없다.
     await expect(page.locator('#careerView .lock')).toHaveCount(0);
     await expect(page.locator('#careerView .own')).toHaveCount(0);
