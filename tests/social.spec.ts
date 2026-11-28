@@ -223,7 +223,7 @@ test.describe('my.txid.uk (apps/social)', () => {
   test('이력: 공개분에 실린 줄만 보이고, 본인 전용 줄과 증빙·메모는 나가지 않는다', async ({ page, request }) => {
     const pub = await (await request.get(API + '/public')).json();
     const allow: Record<string, string[]> = { certs: ['name', 'issuer', 'date', 'expires', 'field', 'main'], education: ['school', 'major', 'degree', 'start', 'end'],
-      training: ['name', 'org', 'from', 'to', 'hours'], career: ['org', 'from', 'to', 'title', 'work'],
+      training: ['name', 'org', 'from', 'to', 'hours', 'planned'], career: ['org', 'from', 'to', 'title', 'work'],
       grades: ['name', 'level', 'issuer', 'date'], awards: ['name', 'issuer', 'date'], tests: ['name', 'score', 'best', 'date', 'expires', 'issuer'],
       military: ['name', 'from', 'to'], activities: ['name', 'from', 'to'], volunteer: ['name', 'org', 'from', 'to'] };
     const common = ['detail', 'history']; // 눌러서 펼치는 설명·지난 기록 표
