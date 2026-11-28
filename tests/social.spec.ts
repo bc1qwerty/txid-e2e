@@ -268,4 +268,20 @@ test.describe('my.txid.uk (apps/social)', () => {
     await expect(page.locator('#profileView .h-card').first()).toBeVisible();
     await expect(page.locator('#secJobs')).toBeHidden();
   });
+
+  test('링크 미리보기 정보(og)는 바뀌지 않는 값만 싣고, 프로필 사진 주소가 그림을 준다', async ({ page, request }) => {
+    await page.goto(BASE + '/@seowondeuk/');
+    await expect(page.locator('meta[property="og:title"]')).toHaveAttribute('content', '@seowondeuk · my');
+    // 숫자(횟수·거리 등)를 넣으면 데이터와 어긋난다 — 설명은 고정 문구.
+    await expect(page.locator('meta[property="og:description"]')).toHaveAttribute('content', '프로필 · 운동 · 이력');
+    const image = await page.locator('meta[property="og:image"]').getAttribute('content');
+    expect(image).toBe('https://my.txid.uk/api/u/seowondeuk/avatar');
+    const r = await request.get(BASE + '/api/u/seowondeuk/avatar');
+    expect(r.status()).toBe(200);
+    expect(r.headers()['content-type']).toMatch(/^image\/(jpeg|png)/);
+    // 화면의 사진은 공개분에 해시가 있을 때만.
+    const pub = await (await request.get(API + '/public')).json();
+    if (pub.profile.avatar) await expect(page.locator('#pAvatar')).toBeVisible();
+    else await expect(page.locator('#pInitial')).toBeVisible();
+  });
 });
