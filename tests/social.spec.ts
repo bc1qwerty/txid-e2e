@@ -5,7 +5,7 @@ import { test, expect } from '../fixtures';
 const BASE = process.env.SOCIAL_BASE || 'https://my.txid.uk';
 const API = BASE + '/api/u/seowondeuk';
 
-// 2026-11-22 신설(archive apps/social). 운동 기록 — 이름별 페이지 /@<NIP-05 이름>. 누구나 보는 요약(/api/u/<이름>/public)과
+// 2026-11-22 신설(archive apps/social). 운동 기록 - 이름별 페이지 /@<NIP-05 이름>. 누구나 보는 요약(/api/u/<이름>/public)과
 // 주인 계정만 보는 상세(/api/u/<이름>/private, Pages Function 이 api.txid.uk/auth/me 의 계정 번호로 판정)가 따로다.
 // 🔑 이 파일이 있어야 archive 배포 워크플로가 social 을 배포한다(tests/<short>.spec.ts 규약).
 // 기록 수는 GPX 를 올릴 때마다 바뀌므로 개수는 단언하지 않는다.
@@ -193,7 +193,7 @@ test.describe('my.txid.uk (apps/social)', () => {
     for (const k of ['daily', 'weight', 'gear']) expect(pub[k], k).toBeUndefined();
   });
 
-  // ── 2026-11-28: 한 사람의 페이지 — 프로필(첫 화면)·운동·이력 세 갈래 ──
+  // ── 2026-11-28: 한 사람의 페이지 - 프로필(첫 화면)·운동·이력 세 갈래 ──
   test('첫 화면은 프로필: 갈래 요약 카드 둘과 최근 기록, 갈래를 오가면 주소와 화면이 같이 바뀐다', async ({ page }) => {
     await page.goto(BASE + '/@seowondeuk/');
     await expect(page.locator('#secProfile')).toHaveAttribute('aria-current', 'page');
@@ -252,7 +252,7 @@ test.describe('my.txid.uk (apps/social)', () => {
     await expect(page.locator('#careerView .own')).toHaveCount(0);
   });
 
-  // ── 2026-11-28: my.txid.uk 로 합침 — 어두운 기본 화면, 본인 전용 화면(/career) ──
+  // ── 2026-11-28: my.txid.uk 로 합침 - 어두운 기본 화면, 본인 전용 화면(/career) ──
   test('기기가 밝은 설정이어도 기본은 어두운 화면이다', async ({ browser }) => {
     const ctx = await browser.newContext({ colorScheme: 'light' });
     const page = await ctx.newPage();
@@ -279,7 +279,7 @@ test.describe('my.txid.uk (apps/social)', () => {
   test('링크 미리보기 정보(og)는 바뀌지 않는 값만 싣고, 프로필 사진 주소가 그림을 준다', async ({ page, request }) => {
     await page.goto(BASE + '/@seowondeuk/');
     await expect(page.locator('meta[property="og:title"]')).toHaveAttribute('content', '@seowondeuk · my');
-    // 숫자(횟수·거리 등)를 넣으면 데이터와 어긋난다 — 설명은 고정 문구.
+    // 숫자(횟수·거리 등)를 넣으면 데이터와 어긋난다 - 설명은 고정 문구.
     await expect(page.locator('meta[property="og:description"]')).toHaveAttribute('content', '프로필 · 운동 · 이력');
     const image = await page.locator('meta[property="og:image"]').getAttribute('content');
     expect(image).toBe('https://my.txid.uk/api/u/seowondeuk/avatar');
