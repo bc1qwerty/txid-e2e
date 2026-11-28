@@ -240,7 +240,8 @@ test.describe('my.txid.uk (apps/social)', () => {
       await expect(page.locator('#careerView .cv-rest li')).toHaveCount(restCerts.length);
     } else await expect(page.locator('#careerView .cv-rest')).toHaveCount(0);
     // 자세한 내용이 있는 항목은 누르면 펼쳐진다.
-    const withMore = Object.keys(allow).flatMap((k) => pub.profile[k] ?? []).filter((r) => r.main !== false && (r.detail || (r.history ?? []).length)).length;
+    // 병역은 내용을 바로 아래에 붙여 보이므로 펼치는 항목에서 뺀다.
+    const withMore = Object.keys(allow).filter((k) => k !== 'military').flatMap((k) => pub.profile[k] ?? []).filter((r) => r.main !== false && (r.detail || (r.history ?? []).length)).length;
     await expect(page.locator('#careerView details:not(.cv-rest)')).toHaveCount(withMore);
     if (withMore) {
       const first = page.locator('#careerView details:not(.cv-rest)').first();
