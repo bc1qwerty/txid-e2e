@@ -230,13 +230,20 @@ test.describe('my.txid.uk (apps/social)', () => {
     for (const [kind, ok] of Object.entries(allow)) {
       for (const row of pub.profile[kind] ?? []) for (const k of Object.keys(row)) expect([...ok, ...common], `${kind}.${k}`).toContain(k);
     }
+    const mainCerts = (pub.profile.certs ?? []).filter((c) => c.main !== false), restCerts = (pub.profile.certs ?? []).filter((c) => c.main === false);
     await page.goto(BASE + '/@seowondeuk/#career');
-    await expect(page.locator('#careerView .cv-cert')).toHaveCount((pub.profile.certs ?? []).length + (pub.profile.grades ?? []).length + (pub.profile.tests ?? []).length); // 자격증·등급·어학 카드
+    await expect(page.locator('#careerView .cv-cert')).toHaveCount(mainCerts.length + (pub.profile.grades ?? []).length + (pub.profile.tests ?? []).length); // 주요 자격증·등급·어학 카드
+    // 나머지 자격(main:false)은 눌러서 펼치는 날짜순 목록으로.
+    if (restCerts.length) {
+      await expect(page.locator('#careerView .cv-rest ol')).toBeHidden();
+      await page.locator('#careerView .cv-rest summary').click();
+      await expect(page.locator('#careerView .cv-rest li')).toHaveCount(restCerts.length);
+    } else await expect(page.locator('#careerView .cv-rest')).toHaveCount(0);
     // 자세한 내용이 있는 항목은 누르면 펼쳐진다.
-    const withMore = Object.keys(allow).flatMap((k) => pub.profile[k] ?? []).filter((r) => r.detail || (r.history ?? []).length).length;
-    await expect(page.locator('#careerView details')).toHaveCount(withMore);
+    const withMore = Object.keys(allow).flatMap((k) => pub.profile[k] ?? []).filter((r) => r.main !== false && (r.detail || (r.history ?? []).length)).length;
+    await expect(page.locator('#careerView details:not(.cv-rest)')).toHaveCount(withMore);
     if (withMore) {
-      const first = page.locator('#careerView details').first();
+      const first = page.locator('#careerView details:not(.cv-rest)').first();
       await first.locator('summary').click();
       await expect(first.locator('.cv-extra')).toBeVisible();
     }
@@ -283,5 +290,30 @@ test.describe('my.txid.uk (apps/social)', () => {
     const pub = await (await request.get(API + '/public')).json();
     if (pub.profile.avatar) await expect(page.locator('#pAvatar')).toBeVisible();
     else await expect(page.locator('#pInitial')).toBeVisible();
+  });
+
+  // ── 2026-11-28: 응원·댓글·방명록(소셜 1단계). 쓰기 규칙은 사이트 리포의 단위 시험(functions/lib/social.test.mjs)이 본다.
+  test('응원·댓글·방명록: 읽기는 누구나, 쓰기는 로그인 없이는 안 되고 계정 번호는 나가지 않는다', async ({ page, request }) => {
+    const r = await request.get(API + '/social');
+    expect(r.status()).toBe(200);
+    expect(r.headers()['cache-control']).toContain('no-store');
+    const doc = await r.json();
+    for (const k of ['cheers', 'mine', 'comments', 'guestbook', 'limits']) expect(doc[k], k).toBeDefined();
+    expect(doc.me).toBeNull();
+    expect(JSON.stringify(doc)).not.toMatch(/"uid"|"rate"/);
+    // 로그인 없이 쓰기: 이 사이트에서 보낸 것이어도 401, 다른 곳에서 보낸 것은 403.
+    const post = (origin: string) => request.post(API + '/social', { headers: { origin, 'content-type': 'application/json' }, data: { op: 'guest', text: 'e2e' } });
+    expect((await post(BASE)).status()).toBe(401);
+    expect((await post('https://evil.example')).status()).toBe(403);
+    expect((await request.get(API + '/social')).status()).toBe(200);
+    // 화면: 방명록 칸과 로그인 안내, 기록 상세의 응원 단추.
+    await page.goto(BASE + '/@seowondeuk/');
+    await expect(page.locator('#hGuest')).toContainText('방명록');
+    await expect(page.locator('#hGuest .so-hint')).toBeVisible();
+    await expect(page.locator('#hGuest .so-form')).toHaveCount(0);
+    await page.locator('#profileView .h-row').first().click();
+    await expect(page.locator('#dSocial .so-cheer')).toBeVisible();
+    await page.locator('#dSocial .so-cheer').click();
+    await expect(page.locator('#dSocial .so-msg')).toContainText('로그인');
   });
 });
