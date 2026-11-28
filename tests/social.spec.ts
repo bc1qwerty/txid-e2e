@@ -188,9 +188,14 @@ test.describe('my.txid.uk (apps/social)', () => {
     expect(pub.hr.lt).toBeGreaterThan(pub.hr.zones[3] - 1);
     for (const a of pub.activities) {
       if (a.hrHist) { expect(up(a.hz), a.id).toBe(true); expect(a.hz[3], a.id).toBeLessThanOrEqual(a.lt); }
-      expect(a.shoe, a.id).toBeUndefined();
     }
-    for (const k of ['daily', 'weight', 'gear']) expect(pub[k], k).toBeUndefined();
+    for (const k of ['daily', 'weight']) expect(pub[k], k).toBeUndefined();
+    // 신발은 2026-11-28 부터 공개(사용자): 누적 거리 표와 활동마다의 신발 이름.
+    expect(pub.gear.length).toBeGreaterThan(0);
+    expect(pub.activities.some((a: { shoe?: string }) => a.shoe)).toBe(true);
+    // 경력 줄은 본인만 보이고, 공개분에는 회사 이름 없는 요약만 있다.
+    expect(pub.profile.career).toBeUndefined();
+    expect(pub.profile.careerSummary.length).toBeGreaterThan(0);
   });
 
   // ── 2026-11-28: 한 사람의 페이지 - 프로필(첫 화면)·운동·이력 세 갈래 ──
